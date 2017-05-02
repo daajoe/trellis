@@ -1,1 +1,2 @@
-# trellis_private
+# trellis
+TREewidth LocaL Improvement Solver
