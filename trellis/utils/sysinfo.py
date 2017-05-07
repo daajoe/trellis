@@ -1,5 +1,9 @@
+#!/usr/bin/env false
+# coding=utf-8
+
 import cpuinfo
 import platform
+
 
 def get_system_info():
     ret = {}

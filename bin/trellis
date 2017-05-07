@@ -1,0 +1,141 @@
+#!/usr/bin/env python
+#
+# Copyright 2017
+# Johannes K. Fichte, TU Wien, Austria
+# Neha Lodha, TU Wien, Austria
+# 
+# trellis is free software: you can redistribute it
+# and/or modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.
+# trellis is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.  You should have received a
+# copy of the GNU General Public License along with
+# trellis.  If not, see <http://www.gnu.org/licenses/>.
+#
+from __future__ import absolute_import, print_function
+
+import argparse
+import inspect
+import json
+import logging
+import logging.config
+import os
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+from distutils import spawn
+
+src_path = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
+src_path = os.path.realpath(os.path.join(src_path, '..'))
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+# TODO: not sure whether this works for package installation
+import trellis
+
+__author__ = 'Johannes K. Fichte'
+__license__ = 'GPL'
+__version__ = '3+'
+
+
+def setup_logging(config_file='%s/logging.conf' % (os.path.dirname(__file__))):
+    logging.config.fileConfig(config_file)
+
+
+setup_logging(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logging.conf'))
+
+
+# TODO: use configuration file for default solver configs and binary paths instead of take from solver
+def parse_args():
+    parser = argparse.ArgumentParser(description='%s -f instance')
+    parser.add_argument('-f', '--file', dest='instance', action='store', type=lambda x: os.path.realpath(x),
+                        help='instance', required=True)
+    # rename parameter to wrappers
+    parser.add_argument('-s', '--solver', dest='solver', type=lambda x: spawn.find_executable(x), help='solver_binary',
+                        default=spawn.find_executable('tcs-meiji'), action='store')
+    # choices=[trellis.decomposer.HTD.name, trellis.decomposer.Jdrasil.name,
+    #          trellis.decomposer.TCSMeijin.name], default=trellis.decomposer.Jdrasil.name,
+    # lambda x: spawn.find_executable(x),
+    # help = 'solver_binary', default = spawn.find_executable('tcs-meiji')
+    parser.add_argument('-a', '--solver-args', dest='solver_args', action='store', type=str,
+                        help='solver_args', default='')
+    parser.add_argument('-w', '--solver-wall-clock-limit', dest='timelimit', action='store', type=int,
+                        help='time-limit',
+                        default=900)
+    parser.add_argument('--runid', dest='runid', action='store', type=int, help='id of the current repeation',
+                        default=1)
+    parser.add_argument('-b', '--bfs-budget', dest='budget', action='store', type=int, help='bfs budget',
+                        default=10)
+    parser.add_argument('-r', '--no_improvements', dest='ls_no_improvements', action='store', type=int,
+                        help=' the number of no-improvement rounds',
+                        default=10)
+    parser.add_argument('-t', '--tmp', dest='tmp', action='store', type=str, help='unused',
+                        default=tempfile.gettempdir())
+    parser.add_argument('-p', '--pre-solver', dest='presolver', action='store', type=str, help='select presolver',
+                        default='htd', choices=['htd', 'flow_cutter'])
+    parser.add_argument('-x', '--presolver-wall-clock-limit', dest='presolver_timeout', action='store', type=int,
+                        help='presolver runtime limit', default=15)
+    args = parser.parse_args()
+    if args.presolver == 'htd':
+        args.usehtd = True
+    else:
+        args.usehtd = False
+    if not os.path.isfile(args.instance):
+        logging.warn('File "%s" does not exist.\n' % args.instance)
+        exit(16)
+    # args.solver
+    return args
+
+
+def main():
+    args = parse_args()
+    fname = args.instance
+    solver = args.solver
+    temp_path = args.tmp
+    timeout = args.timelimit
+    # TODO: allow multiple encoders for SAT based solving or move to alternative project
+    # encoder = args.encoder
+    solver_args = args.solver_args
+    runid = args.runid
+    ni = args.ls_no_improvements
+    budget = args.budget
+    global_solver_timeout = args.presolver_timeout
+
+    p = subprocess.Popen(['sha256sum', args.instance], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, err = p.communicate()
+    rc = p.returncode
+    logging.debug('Return code from sha256sum %s' % rc)
+    sha = output.split()[0]
+
+    signal.signal(signal.SIGTERM, trellis.utils.signals.handler)
+    signal.signal(signal.SIGINT, trellis.utils.signals.handler)
+    logging.warn('solver = %s\n' % solver)
+
+    wall_start = time.time()
+
+    global_solver = trellis.decomposer.HTD(temp_path=temp_path, path='htd_main')
+    local_solver = trellis.decomposer.Jdrasil(temp_path=temp_path, path=solver, args=solver_args)
+
+    LI = trellis.LocalImprovement(filename=fname, global_solver=global_solver, local_solver=local_solver)
+
+    td = LI.decompose(timeout, budget, gt=global_solver_timeout)
+    wall = time.time() - wall_start
+
+    res = LI.statistics()
+    # 'system_info': get_system_info(),
+    res.update(
+        {'wall': wall, 'run': runid, 'hash': sha, 'args': vars(args), 'globalsolver_args': global_solver.args,
+         'localsolver_args': local_solver.args})
+    sys.stdout.write(json.dumps(res, sort_keys=True))
+    sys.stdout.write('\n')
+    sys.stdout.flush()
+    exit(0)
+
+
+if __name__ == "__main__":
+    main()

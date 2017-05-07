@@ -1,0 +1,10 @@
+PACEDecomposer:
+  TCSMeijin:
+    configurations:
+    - executable: "tcs-mejin"
+  Jdrasil:
+    configurations:
+    - executable: "jdrasil.sh"
+  HTD:
+    configuration:
+    - executable: "htd_main"
