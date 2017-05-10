@@ -118,8 +118,8 @@ def main():
 
     wall_start = time.time()
 
-    global_solver = trellis.decomposer.HTD(temp_path=temp_path, path='htd_main')
-    local_solver = trellis.decomposer.Jdrasil(temp_path=temp_path, path=solver, args=solver_args)
+    global_solver = trellis.decomposer.HTD(temp_path=temp_path)
+    local_solver = trellis.decomposer.Jdrasil(temp_path=temp_path, args=solver_args)
 
     LI = trellis.LocalImprovement(filename=fname, global_solver=global_solver, local_solver=local_solver)
 

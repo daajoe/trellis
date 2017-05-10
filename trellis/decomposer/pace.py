@@ -1,4 +1,5 @@
 import logging
+import os
 import subprocess
 import sys
 from itertools import chain
@@ -9,10 +10,11 @@ from trellis.decomposer.decomposer import Decomposer
 
 
 class PACEDecomposer(Decomposer):
-    def __init__(self, temp_path, path, args='', always_validate=True):
+    lib_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../libs/'))
+
+    def __init__(self, temp_path, args='', always_validate=True):
         self.always_validate = always_validate
         self.args = args
-        self.path = path
         self.temp_path = temp_path
         # from distutils import spawn
 
@@ -95,7 +97,7 @@ class PACEDecomposer(Decomposer):
 
     # TODO: fix
     def call_solver(self, instance_path, timeout=30, iterations=None):
-        solver_name = self.path
+        path = os.path.join(self.lib_path, self.folder_name, self.bin_name)
         cmd = 'timeout %i %s %s < %s' % (
-            timeout, solver_name, self.args.replace('"', '').replace("&quot;", ""), instance_path)
+            timeout, path, self.args.replace('"', '').replace("&quot;", ""), instance_path)
         return self.call(cmd)
