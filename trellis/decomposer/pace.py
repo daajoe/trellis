@@ -11,6 +11,7 @@ from trellis.decomposer.decomposer import Decomposer
 
 class PACEDecomposer(Decomposer):
     lib_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../libs/'))
+    args = ['']
 
     def __init__(self, temp_path, args='', always_validate=True):
         self.always_validate = always_validate

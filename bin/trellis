@@ -15,7 +15,7 @@
 # copy of the GNU General Public License along with
 # trellis.  If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import absolute_import, print_function
+# from __future__ import absolute_import, print_function
 
 import argparse
 import inspect
@@ -28,6 +28,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections import defaultdict, namedtuple, OrderedDict
 from distutils import spawn
 
 src_path = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
@@ -40,7 +41,7 @@ import trellis
 
 __author__ = 'Johannes K. Fichte'
 __license__ = 'GPL'
-__version__ = '3+'
+__version__ = '1.0.1-dev'
 
 
 def setup_logging(config_file='%s/logging.conf' % (os.path.dirname(__file__))):
@@ -50,61 +51,242 @@ def setup_logging(config_file='%s/logging.conf' % (os.path.dirname(__file__))):
 setup_logging(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logging.conf'))
 
 
+def is_valid_file(parser, arg):
+    if not arg:
+        parser.error('Missing file.')
+    if not os.path.exists(arg):
+        parser.error('The file "%s" does not exist!' % arg)
+
+
+class Range(object):
+    def __init__(self, start, end, log_scale=False):
+        self.start = start
+        self.end = end
+        # used for pcs file generation only
+        self.logscale = log_scale
+
+    def __eq__(self, other):
+        return self.start <= other <= self.end
+
+    def __repr__(self):
+        return '%s to %s' % (self.start, self.end)
+
+
+class SolverArgs(object):
+    def __init__(self, solver_list, dependency):
+        self.dependency = dependency
+        self.args = {}
+        self.default = 'opt1'
+
+        for solver in solver_list:
+            i = 0
+            sargs = OrderedDict()
+            for arg in solver.args:
+                i += 1
+                sargs['opt%i' % i] = arg
+            self.args[solver.__name__] = sargs
+
+    def __str__(self):
+        ret = ''
+        for k, v in self.args.iteritems():
+            ret += '%s (%s); ' % (','.join(v.keys()), k)
+        return ret
+
+    def __eq__(self, other):
+        #TODO:
+        print other
+        return True
+
+    # def __repr__(self):
+    #     pass
+
+    def help_str(self):
+        ret = ''
+        for k, v in self.args.iteritems():
+            opts = ''
+            for opt, opt_val in v.iteritems():
+                opts += '%s/%s: "%s"; ' % (k,opt, opt_val)
+            ret += '%s' % opts
+        return ret
+
+
+# TODO: add remaining pace solvers
+# TOOD: add own SAT/ASP-based solver
+available_local_solvers = [trellis.decomposer.TCSMeijin, trellis.decomposer.Jdrasilv1]
+available_global_solvers = [trellis.decomposer.HTD, trellis.decomposer.FlowCutter]
+available_extractors = [trellis.extractor.EdgeExtractor]
+
+
+# pcs_grp = root_group.add_argument_group('pcs')
+# default_grp = root_group.add_argument_group('defaults')
+def names(x):
+    return map(lambda x: x.__name__, x)
+
+
 # TODO: use configuration file for default solver configs and binary paths instead of take from solver
 def parse_args():
-    parser = argparse.ArgumentParser(description='%s -f instance')
-    parser.add_argument('-f', '--file', dest='instance', action='store', type=lambda x: os.path.realpath(x),
-                        help='instance', required=True)
-    # rename parameter to wrappers
-    parser.add_argument('-s', '--solver', dest='solver', type=lambda x: spawn.find_executable(x), help='solver_binary',
-                        default=spawn.find_executable('tcs-meiji'), action='store')
-    # choices=[trellis.decomposer.HTD.name, trellis.decomposer.Jdrasil.name,
-    #          trellis.decomposer.TCSMeijin.name], default=trellis.decomposer.Jdrasil.name,
-    # lambda x: spawn.find_executable(x),
-    # help = 'solver_binary', default = spawn.find_executable('tcs-meiji')
-    parser.add_argument('-a', '--solver-args', dest='solver_args', action='store', type=str,
-                        help='solver_args', default='')
-    parser.add_argument('-w', '--solver-wall-clock-limit', dest='timelimit', action='store', type=int,
-                        help='time-limit',
-                        default=900)
+    parser = argparse.ArgumentParser(description='%(prog)s -f instance')
+    # parser.formatter_class._max_help_position = 120
+    parser.add_argument('--version', action='version', version='%(prog)s {version}'.format(version=__version__))
     parser.add_argument('--runid', dest='runid', action='store', type=int, help='id of the current repeation',
                         default=1)
-    parser.add_argument('-b', '--bfs-budget', dest='budget', action='store', type=int, help='bfs budget',
+
+    root_group = parser.add_mutually_exclusive_group()
+    root_group.add_argument('--pcs', dest='pcs', action='store_true',
+                            help='output pcs file (see: https://automl.github.io/SMAC3/stable/manual.html)')
+    # TODO: --pcs-reduced
+    root_group.add_argument('-f', '--file', dest='instance', action='store', type=lambda x: os.path.realpath(x),
+                            help='instance')
+    # TODO: add extractors
+    # ==================================================================================================================
+    #                EXTRACTORS
+    # ==================================================================================================================
+    # TODO: add to LI constructor
+    parser.add_argument('-e', '--extractor', dest='extractor', action='store', type=str, help='extractor',
+                        choices=names(available_extractors), default=trellis.extractor.EdgeExtractor.__name__)
+    # ==================================================================================================================
+    #                LOCAL SOLVER
+    # ==================================================================================================================
+    parser.add_argument('-lb', '--local_budget', dest='local_budget', action='store', type=int,
+                        help='local budget (lb)',
+                        choices=[Range(10, 250)], default=75)
+    parser.add_argument('-lw', '--local_timeout', '--local_solver_wall_clock_limit', dest='local_timeout',
+                        action='store', type=int, help='local timeout (lt) / wall clock limit in seconds',
+                        choices=[Range(5, 172800, log_scale=True)], default=1800)
+    # TODO: ensure that smaller than local_timeout
+    # TODO: use timeout for jdrasil
+    parser.add_argument('-lx', '--local_sat_timeout', '--local_solver_single_call', dest='local_sat_timeout',
+                        action='store', type=int,
+                        help='local sat timeout (lt-sat) / wall clock limit in seconds for a single sat call',
+                        choices=[Range(5, 172800, log_scale=True)], default=900)
+    # TODO:
+    parser.add_argument('-ls', '--local_solver', dest='local_solver', action='store', help='local solver',
+                        choices=names(available_local_solvers), default=trellis.decomposer.Jdrasilv1.__name__)
+    largs = SolverArgs(available_local_solvers, dependency='local_solver')
+    parser.add_argument('-la', '--local_solver_args', dest='local_solver_args', action='store', type=str,
+                        help='arguments for the local solver values are as follows: %s' % largs.help_str(),
+                        choices=[largs], default=largs.default)
+    parser.add_argument('-ni', '--no_improvements', dest='local_solver_no_improvements', action='store', type=int,
+                        help='the number of no-improvement rounds', choices=[Range(0, 100, log_scale=True)],
                         default=10)
-    parser.add_argument('-r', '--no_improvements', dest='ls_no_improvements', action='store', type=int,
-                        help=' the number of no-improvement rounds',
-                        default=10)
-    parser.add_argument('-t', '--tmp', dest='tmp', action='store', type=str, help='unused',
+    # ==================================================================================================================
+    #                GLOBAL SOLVER
+    # ==================================================================================================================
+    parser.add_argument('-gw', '--global_timeout', '--global_solver_wall_clock_limit', dest='global_timeout',
+                        action='store', type=int, help='global timout (gt) / wall clock limit in seconds',
+                        choices=[Range(5, 7200, log_scale=True)], default=60)
+    parser.add_argument('-gs', '--global_solver', dest='global_solver', action='store', help='global solver',
+                        choices=names(available_global_solvers), default=trellis.decomposer.HTD.__name__)
+    gargs = SolverArgs(available_global_solvers, dependency='global_solver')
+    parser.add_argument('-ga', '--global_solver_args', dest='global_solver_args', action='store', type=str,
+                        help='arguments for the global solver values are as follows: %s' % gargs.help_str(),
+                        choices=[gargs], default=gargs.default)
+    parser.add_argument('-t', '--tmp', dest='temp_path', action='store', type=str, help='unused',
                         default=tempfile.gettempdir())
-    parser.add_argument('-p', '--pre-solver', dest='presolver', action='store', type=str, help='select presolver',
-                        default='htd', choices=['htd', 'flow_cutter'])
-    parser.add_argument('-x', '--presolver-wall-clock-limit', dest='presolver_timeout', action='store', type=int,
-                        help='presolver runtime limit', default=15)
     args = parser.parse_args()
-    if args.presolver == 'htd':
-        args.usehtd = True
-    else:
-        args.usehtd = False
-    if not os.path.isfile(args.instance):
-        logging.warn('File "%s" does not exist.\n' % args.instance)
-        exit(16)
-    # args.solver
+    if args.pcs:
+        sys.stdout.write('# generated by "%s --pcs"\n' % __file__)
+        sys.stdout.write('# version "%s"\n' % __version__)
+
+        def type_mapping(x):
+            x = x.__name__
+            mapping = defaultdict(int='integer', float='real')
+            if mapping.has_key(x):
+                return mapping[x]
+            else:
+                return None
+
+        all_forbitten = []
+        # noinspection PyProtectedMember
+        for parameter in parser._actions:
+            # noinspection PyProtectedMember
+            if type(parameter) in (argparse._HelpAction, argparse._VersionAction):
+                continue
+            matching = next(s for s in parameter.option_strings if '--' in s)
+            if matching:
+                parameter_name = matching.replace('-', '')
+            else:
+                parameter_name = parameter.option_strings[0].replace('-', '')
+            parameter_choices = None
+            parameter_logscale = ''
+            if isinstance(parameter.choices, list):
+                if isinstance(parameter.choices[0], Range):
+                    parameter_choices = parameter.choices[0]
+                    parameter_logscale = 'log' if parameter_choices.logscale else ''
+                elif isinstance(parameter.choices[0], SolverArgs):
+                    parameter_choices = parameter.choices[0]
+                    #TOOD:
+                else:
+                    parameter_choices = parameter.choices
+            parameter_type = type_mapping(parameter.type) if parameter.type else 'categorical'
+            if parameter_choices:
+                if isinstance(parameter_choices, Range):
+                    choice = '[%i,%i]' % (parameter_choices.start, parameter_choices.end)
+                elif isinstance(parameter_choices, SolverArgs):
+                    #get all available options
+                    av_args = set()
+                    for solver, options in parameter_choices.args.iteritems():
+                        av_args.update(set(options.keys()))
+                    choice = '{%s}' % (','.join(av_args))
+                    parameter_type = 'categorical'
+                    # add as forbidden parameter configurations
+                    for solver, options in parameter_choices.args.iteritems():
+                        for option in av_args-set(options.keys()):
+                            forbidden = '{%s=%s, %s=%s}' %(parameter_choices.dependency,solver,parameter_name,option)
+                            all_forbitten.append(forbidden)
+                else:
+                    choice = '{%s}' % (','.join(parameter_choices))
+                str2 = "%s %s %s [%s] %s" % (
+                    parameter_name, parameter_type, choice, parameter.default, parameter_logscale)
+                str2 = '%s # %s\n' % (str2.ljust(120, ' '), parameter.help)
+                sys.stdout.write(str2)
+        sys.stdout.write('# Forbidden Parameter Configurations\n')
+        for s in all_forbitten:
+            sys.stdout.write('%s\n' %s)
+        exit(0)
+
+    is_valid_file(parser, args.instance)
+    args.global_solver = getattr(trellis.decomposer, args.global_solver)(args.temp_path)
+    args.local_solver = getattr(trellis.decomposer, args.local_solver)(args.temp_path)
+    args.extractor = getattr(trellis.extractor, args.extractor)()
     return args
 
+
+# TODO:
+# SIGNAL received
+# Traceback (most recent call last):
+#   File "bin/trellis", line 233, in <module>
+#     main()
+#   File "bin/trellis", line 226, in main
+#     sys.stdout.write(json.dumps(res, sort_keys=True))
+#   File "/usr/lib/python2.7/json/__init__.py", line 251, in dumps
+#     sort_keys=sort_keys, **kw).encode(obj)
+#   File "/usr/lib/python2.7/json/encoder.py", line 209, in encode
+#     chunks = list(chunks)
+#   File "/usr/lib/python2.7/json/encoder.py", line 434, in _iterencode
+#     for chunk in _iterencode_dict(o, _current_indent_level):
+#   File "/usr/lib/python2.7/json/encoder.py", line 408, in _iterencode_dict
+#     for chunk in chunks:
+#   File "/usr/lib/python2.7/json/encoder.py", line 408, in _iterencode_dict
+#     for chunk in chunks:
+#   File "/usr/lib/python2.7/json/encoder.py", line 442, in _iterencode
+#     o = _default(o)
+#   File "/usr/lib/python2.7/json/encoder.py", line 184, in default
+#     raise TypeError(repr(o) + " is not JSON serializable")
+# TypeError: <trellis.extractor.edges.EdgeExtractor object at 0x7ff004599e90> is not JSON serializable
 
 def main():
     args = parse_args()
     fname = args.instance
-    solver = args.solver
-    temp_path = args.tmp
-    timeout = args.timelimit
+    local_solver = args.local_solver
+    global_solver = args.global_solver
+    timeout = args.local_timeout
     # TODO: allow multiple encoders for SAT based solving or move to alternative project
     # encoder = args.encoder
-    solver_args = args.solver_args
     runid = args.runid
-    ni = args.ls_no_improvements
-    budget = args.budget
-    global_solver_timeout = args.presolver_timeout
+    ni = args.local_solver_no_improvements
+    lb = args.local_budget
+    global_solver_timeout = args.global_timeout
 
     p = subprocess.Popen(['sha256sum', args.instance], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = p.communicate()
@@ -114,23 +296,22 @@ def main():
 
     signal.signal(signal.SIGTERM, trellis.utils.signals.handler)
     signal.signal(signal.SIGINT, trellis.utils.signals.handler)
-    logging.warn('solver = %s\n' % solver)
+    logging.warn('local_solver = %s\n' % local_solver)
 
     wall_start = time.time()
 
-    global_solver = trellis.decomposer.HTD(temp_path=temp_path)
-    local_solver = trellis.decomposer.Jdrasil(temp_path=temp_path, args=solver_args)
-
     LI = trellis.LocalImprovement(filename=fname, global_solver=global_solver, local_solver=local_solver)
 
-    td = LI.decompose(timeout, budget, gt=global_solver_timeout)
+    # TODO: ni as parameter
+    td = LI.decompose(lt=timeout, lb=lb, ni=ni, gt=global_solver_timeout, extractor=args.extractor)
     wall = time.time() - wall_start
 
     res = LI.statistics()
     # 'system_info': get_system_info(),
     res.update(
-        {'wall': wall, 'run': runid, 'hash': sha, 'args': vars(args), 'globalsolver_args': global_solver.args,
-         'localsolver_args': local_solver.args})
+        {'wall': round(wall, 4), 'run': runid, 'hash': sha, 'args': vars(args),
+         'global_solver_args': global_solver.args,
+         'local_solver_args': local_solver.args})
     sys.stdout.write(json.dumps(res, sort_keys=True))
     sys.stdout.write('\n')
     sys.stdout.flush()

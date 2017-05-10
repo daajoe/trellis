@@ -48,7 +48,7 @@ class LocalImprovement(object):
                     inputgraph_max_edges=self.inputgraph_number_of_edges, lb=self.lb, lt=self.lt, gt=self.gt)
 
     # noinspection SpellCheckingInspection
-    def decompose(self, lt, lb, extractor=None, gt=60):
+    def decompose(self, lt, lb, extractor=None, ni=10, gt=60):
         """
         :param lt: local timeout
         :type lt: integer
@@ -56,6 +56,8 @@ class LocalImprovement(object):
         :type lb: integer
         :param extractor:
         :type extractor: Extractor
+        :param ni: number of no-improvement rounds
+        :type ni: integer
         :param gt: global timeout
         :type gt: integer
         :rtype: TreeDecomposition
@@ -86,7 +88,7 @@ class LocalImprovement(object):
 
             global_td.validate(graph=inputgraph, type='initial')
             self.globalsolver_mbsize = global_td.max_bag_size()
-            lb_remaining = lb
+            lb_remaining = ni
 
             while lb_remaining > 0:
                 self.rounds += 1

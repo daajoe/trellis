@@ -1,1 +1,1 @@
-import edges
+from edges import EdgeExtractor
