@@ -93,7 +93,7 @@ class SolverArgs(object):
         return ret
 
     def __eq__(self, other):
-        #TODO:
+        # TODO:
         print other
         return True
 
@@ -105,7 +105,7 @@ class SolverArgs(object):
         for k, v in self.args.iteritems():
             opts = ''
             for opt, opt_val in v.iteritems():
-                opts += '%s/%s: "%s"; ' % (k,opt, opt_val)
+                opts += '%s/%s: "%s"; ' % (k, opt, opt_val)
             ret += '%s' % opts
         return ret
 
@@ -215,7 +215,7 @@ def parse_args():
                     parameter_logscale = 'log' if parameter_choices.logscale else ''
                 elif isinstance(parameter.choices[0], SolverArgs):
                     parameter_choices = parameter.choices[0]
-                    #TOOD:
+                    # TOOD:
                 else:
                     parameter_choices = parameter.choices
             parameter_type = type_mapping(parameter.type) if parameter.type else 'categorical'
@@ -223,7 +223,7 @@ def parse_args():
                 if isinstance(parameter_choices, Range):
                     choice = '[%i,%i]' % (parameter_choices.start, parameter_choices.end)
                 elif isinstance(parameter_choices, SolverArgs):
-                    #get all available options
+                    # get all available options
                     av_args = set()
                     for solver, options in parameter_choices.args.iteritems():
                         av_args.update(set(options.keys()))
@@ -231,8 +231,9 @@ def parse_args():
                     parameter_type = 'categorical'
                     # add as forbidden parameter configurations
                     for solver, options in parameter_choices.args.iteritems():
-                        for option in av_args-set(options.keys()):
-                            forbidden = '{%s=%s, %s=%s}' %(parameter_choices.dependency,solver,parameter_name,option)
+                        for option in av_args - set(options.keys()):
+                            forbidden = '{%s=%s, %s=%s}' % (
+                                parameter_choices.dependency, solver, parameter_name, option)
                             all_forbitten.append(forbidden)
                 else:
                     choice = '{%s}' % (','.join(parameter_choices))
@@ -242,7 +243,7 @@ def parse_args():
                 sys.stdout.write(str2)
         sys.stdout.write('# Forbidden Parameter Configurations\n')
         for s in all_forbitten:
-            sys.stdout.write('%s\n' %s)
+            sys.stdout.write('%s\n' % s)
         exit(0)
 
     is_valid_file(parser, args.instance)
@@ -252,28 +253,12 @@ def parse_args():
     return args
 
 
-# TODO:
-# SIGNAL received
-# Traceback (most recent call last):
-#   File "bin/trellis", line 233, in <module>
-#     main()
-#   File "bin/trellis", line 226, in main
-#     sys.stdout.write(json.dumps(res, sort_keys=True))
-#   File "/usr/lib/python2.7/json/__init__.py", line 251, in dumps
-#     sort_keys=sort_keys, **kw).encode(obj)
-#   File "/usr/lib/python2.7/json/encoder.py", line 209, in encode
-#     chunks = list(chunks)
-#   File "/usr/lib/python2.7/json/encoder.py", line 434, in _iterencode
-#     for chunk in _iterencode_dict(o, _current_indent_level):
-#   File "/usr/lib/python2.7/json/encoder.py", line 408, in _iterencode_dict
-#     for chunk in chunks:
-#   File "/usr/lib/python2.7/json/encoder.py", line 408, in _iterencode_dict
-#     for chunk in chunks:
-#   File "/usr/lib/python2.7/json/encoder.py", line 442, in _iterencode
-#     o = _default(o)
-#   File "/usr/lib/python2.7/json/encoder.py", line 184, in default
-#     raise TypeError(repr(o) + " is not JSON serializable")
-# TypeError: <trellis.extractor.edges.EdgeExtractor object at 0x7ff004599e90> is not JSON serializable
+def json_clean(param):
+    for k, v in param.iteritems():
+        if isinstance(v, trellis.decomposer.Decomposer) or isinstance(v, trellis.extractor.Extractor):
+            param[k] = str(v)
+    return param
+
 
 def main():
     args = parse_args()
@@ -309,9 +294,11 @@ def main():
     res = LI.statistics()
     # 'system_info': get_system_info(),
     res.update(
-        {'wall': round(wall, 4), 'run': runid, 'hash': sha, 'args': vars(args),
+        {'wall': round(wall, 4), 'run': runid, 'hash': sha, 'args': json_clean(vars(args)),
          'global_solver_args': global_solver.args,
          'local_solver_args': local_solver.args})
+
+    print res
     sys.stdout.write(json.dumps(res, sort_keys=True))
     sys.stdout.write('\n')
     sys.stdout.flush()
