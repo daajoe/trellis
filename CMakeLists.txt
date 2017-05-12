@@ -88,10 +88,10 @@ ExternalProject_Add(tcs-build
 ExternalProject_Add(jdrasil-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/jdrasil
-        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/jdrasil
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/jdrasil
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/jdrasil
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/Jdrasil
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/Jdrasil
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/Jdrasil
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/Jdrasil
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/jdrasil
