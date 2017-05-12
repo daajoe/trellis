@@ -8,7 +8,7 @@ TREewidth LocaL Improvement Solver
 - pip
 
 ## Installation
-git clone --recursive git://github.com/daajoe/trellis.git
+git clone --recursive git@github.com:daajoe/trellis.git
 
 cmake .
 
