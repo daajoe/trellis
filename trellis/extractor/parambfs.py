@@ -2,15 +2,16 @@
 import copy
 from itertools import permutations
 
+import random
 import networkx as nx
 
 from trellis.extractor.extractor import Extractor
 from trellis.td import TreeDecomposition
 
 
-class EdgeExtractor(Extractor):
+class ParamExtractor(Extractor):
     @staticmethod
-    def bfs(decomp, max_bag_size=None, budget=50):
+    def bfs(decomp, max_bag_size=None, budget=50, rand=False, c1=1.0,c2=0.5,beta=5,gamma=10):
         # get the bags from the tree decomposition
         """
 
@@ -19,63 +20,95 @@ class EdgeExtractor(Extractor):
         :type decomp: decomposition
         """
         rest_decomp = copy.deepcopy(decomp)
-        bags = decomp.bags
+        bag_lengths = dict(zip(decomp[1].keys(), map(len, decomp[1].values())))
+        bags = decomp[1]
         # root of the BFS is the bag with max elements
-        root = decomp.get_first_node(max_bag_size)
+        root_id = decomp.get_first_node(bag_lengths.values(), size=max_bag_size)
+        root = bag_lengths.keys()[root_id]
         bfs_queue = [root]
         bfs_depth = dict()
         bfs_common_nodes = {}
         parent = {}
         # initialization for BFS
-        for i in decomp.tree.nodes():
+        for i in decomp[0].nodes():
             bfs_depth[i] = -1
             parent[i] = -1
         bfs_depth[root] = 0
         parent[root] = root
         internal_nodes = []
-        bfs_common_nodes[root] = decomp.bags[root]
-        sub_vertices = set(decomp.bags[root])
+        bfs_common_nodes[root] = decomp[1][root]
+        sub_vertices = set(decomp[1][root])
         # root is the internal node should not be deleted from the local tree
         internal_nodes.append(root)
         # maybe change this part Not sure how to avoid this.
         while bfs_queue:
-            # show_graph(decomp.tree, 1)
+            # show_graph(decomp[0], 1)
+            # print "BFS:", bfs_queue
+            if rand:
+                random.shuffle(bfs_queue)
             v2 = bfs_queue.pop(0)
+            # print v2,bfs_queue
             flag = 0
+            # print v2,decomp[0][v2]
             # if any of the neighbours have a bag of size > current bag do not continue on this bag
             # changing the checking to the intersection of two bags i.e. check how many vertices are common.
-            for w in decomp.tree[v2]:
+            for w in decomp[0][v2]:
                 if bfs_depth[w] == -1:
                     parent[w] = v2
-                    if len(bags[w].intersection(bags[v2])) >= len(bfs_common_nodes[v2]):
+                    bfs_common_nodes[w] = bags[w].intersection(bags[v2])
+                    bfs_depth[w] = bfs_depth[v2] + 1
+                    if c1 * len(bags[w]) - c2 * len(bfs_common_nodes[w]) <= 1:
+                        if w not in bfs_queue and w not in internal_nodes:
+                            bfs_queue.append(w)
+                        if w not in internal_nodes:
+                            internal_nodes.append(w)
+                            sub_vertices |= decomp[1][w]
+                    if bfs_depth[w] <= beta:
+                        if w not in bfs_queue and w not in internal_nodes:
+                            bfs_queue.append(w)
+                        if w not in internal_nodes:
+                            internal_nodes.append(w)
+                            sub_vertices |= decomp[1][w]
+                    if len(ParamExtractor.subtree(decomp, w, v2)) <= gamma:
+                        if w not in bfs_queue and w not in internal_nodes:
+                            bfs_queue.append(w)
+                        if w not in internal_nodes:
+                            internal_nodes.append(w)
+                            sub_vertices |= decomp[1][w]
+                    else:
                         flag = 1
                         break
-
-            if flag == 0:
-                for w in decomp.tree[v2]:
-                    if bfs_depth[w] == -1:
-                        bfs_depth[w] = bfs_depth[v2] + 1
-                        bfs_common_nodes[w] = bags[w].intersection(bags[v2])
-                    if w not in bfs_queue and w not in internal_nodes:
-                        bfs_queue.append(w)
-                    if w not in internal_nodes:
-                        internal_nodes.append(w)
-                        sub_vertices |= decomp.bags[w]
-            if flag == 1:
-                new_node = max(rest_decomp.tree.nodes()) + 1
-                rest_decomp.tree.add_node(new_node)
-                rest_decomp.tree.add_edge(new_node, v2)
-                rest_decomp.tree.add_edge(new_node, parent[v2])
-                rest_decomp.tree.remove_edge(v2, parent[v2])
-                rest_decomp.bags[new_node] = set(bfs_common_nodes[v2])
-                if v2 in internal_nodes:
-                    internal_nodes.remove(v2)
-                if new_node not in internal_nodes:
-                    internal_nodes.append(new_node)
-            if len(sub_vertices) >= budget:
-                break
-                # show_graph(decomp.tree,1)
+                if flag == 1:
+                    new_node = max(rest_decomp[0].nodes()) + 1
+                    rest_decomp[0].add_node(new_node)
+                    rest_decomp[0].add_edge(new_node, w)
+                    rest_decomp[0].add_edge(new_node, parent[w])
+                    rest_decomp[0].remove_edge(w, parent[w])
+                    rest_decomp[1][new_node] = set(bfs_common_nodes[w])
+                    if v2 in internal_nodes:
+                        internal_nodes.remove(v2)
+                    if new_node not in internal_nodes:
+                        internal_nodes.append(new_node)
+                if len(sub_vertices) >= budget:
+                    break
         return internal_nodes, sub_vertices, rest_decomp
+
+    @staticmethod
+    def subtree(decomp, w, v):
+        neigh = decomp[0].neighbors(w)
+        neigh.remove(v)
+        dfs_visited = [w]
+        while True:
+            try:
+                n = neigh.pop()
+                dfs_visited.append(n)
+                for i in decomp[0].neighbors(n):
+                    if i in dfs_visited:
+                        continue
+                    neigh.append(i)
+            except StopIteration:
+                break
+        return dfs_visited
 
     @staticmethod
     def extract_graph(internal_nodes, decomp, g):
