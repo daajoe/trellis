@@ -63,21 +63,25 @@ class ParamExtractor(Extractor):
                         if w not in internal_nodes:
                             internal_nodes.append(w)
                             sub_vertices |= decomp[1][w]
+                        continue
                     if bfs_depth[w] <= beta:
                         if w not in bfs_queue and w not in internal_nodes:
                             bfs_queue.append(w)
                         if w not in internal_nodes:
                             internal_nodes.append(w)
                             sub_vertices |= decomp[1][w]
-                    if len(ParamExtractor.subtree(decomp, w, v2)) <= gamma:
-                        if w not in bfs_queue and w not in internal_nodes:
-                            bfs_queue.append(w)
-                        if w not in internal_nodes:
-                            internal_nodes.append(w)
-                            sub_vertices |= decomp[1][w]
+                        continue
+                    sub_tree=ParamExtractor.subtree(decomp, w, v2)
+                    if len(sub_tree) <= gamma:
+                        for w1 in sub_tree:
+                            if w1 not in bfs_queue and w1 not in internal_nodes:
+                                bfs_queue.append(w1)
+                            if w1 not in internal_nodes:
+                                internal_nodes.append(w1)
+                                sub_vertices |= decomp[1][w1]
+                        continue
                     else:
                         flag = 1
-                        break
                 if flag == 1:
                     new_node = max(rest_decomp[0].nodes()) + 1
                     rest_decomp[0].add_node(new_node)
@@ -145,8 +149,8 @@ class ParamExtractor(Extractor):
 
     @staticmethod
     def extract_decomposition(decomp, g, max_bag_size=None, budget=50):
-        internal_nodes, _, rest_decomp = EdgeExtractor.bfs(decomp, max_bag_size=max_bag_size, budget=budget)
-        sub_graph, rest_decomp, connecting_leaves = EdgeExtractor.extract_graph(internal_nodes,
+        internal_nodes, _, rest_decomp = ParamExtractor.bfs(decomp, max_bag_size=max_bag_size, budget=budget)
+        sub_graph, rest_decomp, connecting_leaves = ParamExtractor.extract_graph(internal_nodes,
                                                                                 copy.deepcopy(rest_decomp), g)
         return rest_decomp, sub_graph, connecting_leaves
 
