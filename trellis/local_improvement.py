@@ -5,6 +5,7 @@ import signal
 
 from trellis import decomposer
 from trellis.extractor.edges import EdgeExtractor
+from trellis.extractor.parambfs import ParamExtractor
 from trellis.graph import Graph
 from trellis.td import TreeDecomposition
 from trellis.utils.signals import nothing, AbortException
