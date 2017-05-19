@@ -49,7 +49,7 @@ class LocalImprovement(object):
                     inputgraph_max_edges=self.inputgraph_number_of_edges, lb=self.lb, lt=self.lt, gt=self.gt)
 
     # noinspection SpellCheckingInspection
-    def decompose(self, lt, lb, extractor=None, ni=10, gt=60,extractor_args=[]):
+    def decompose(self, lt, lb, extractor=None, ni=10, gt=60,extractor_args=dict()):
         """
         :param lt: local timeout
         :type lt: integer

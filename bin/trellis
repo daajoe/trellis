@@ -295,7 +295,7 @@ def main():
     wall_start = time.time()
 
     LI = trellis.LocalImprovement(filename=fname, global_solver=global_solver, local_solver=local_solver)
-    extractor_args=[args.extractor_c1,args.extractor_c2,args.extractor_beta,args.extractor_gamma,args.extractor_random,args.extractor_delta]
+    extractor_args={'extractor_c1':args.extractor_c1,'extractor_c2':args.extractor_c2,'extractor_beta':args.extractor_beta,'extractor_gamma':args.extractor_gamma,'extractor_random':args.extractor_random,'extractor_delta':args.extractor_delta}
     # TODO: ni as parameter
     td = LI.decompose(lt=timeout, lb=lb, ni=ni, gt=global_solver_timeout, extractor=args.extractor,extractor_args=extractor_args)
     wall = time.time() - wall_start

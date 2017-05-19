@@ -148,10 +148,10 @@ class ParamExtractor(Extractor):
         return sub_graph, rest_decomp, connecting_nodes
 
     @staticmethod
-    def extract_decomposition(decomp, g, max_bag_size=None, budget=50,extractor_args=list([1.0,0.5,2,5,False])):
+    def extract_decomposition(decomp, g, max_bag_size=None, budget=50,extractor_args={'extractor_c1':1.0,'extractor_c2':0.5,'extractor_beta':3,'extractor_gamma':5,'extractor_random':False,'extractor_delta':2}):
         internal_nodes, _, rest_decomp = ParamExtractor.bfs(decomp, max_bag_size=max_bag_size, budget=budget,
-                                            c1=extractor_args[0],c2=extractor_args[1],beta=extractor_args[2],
-                                            gamma=extractor_args[3],rand=extractor_args[4],delta=extractor_args[5])
+                                            c1=extractor_args['extractor_c1'],c2=extractor_args['extractor_c2'],beta=extractor_args['extractor_beta'],
+                                            gamma=extractor_args['extractor_gamma'],rand=extractor_args['extractor_random'],delta=extractor_args['extractor_delta'])
         sub_graph, rest_decomp, connecting_leaves = ParamExtractor.extract_graph(internal_nodes,
                                                                                 copy.deepcopy(rest_decomp), g)
         return rest_decomp, sub_graph, connecting_leaves

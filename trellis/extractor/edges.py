@@ -111,7 +111,7 @@ class EdgeExtractor(Extractor):
         return sub_graph, rest_decomp, connecting_nodes
 
     @staticmethod
-    def extract_decomposition(decomp, g, max_bag_size=None, budget=50,extractor_args=list()):
+    def extract_decomposition(decomp, g, max_bag_size=None, budget=50,extractor_args=dict()):
         internal_nodes, _, rest_decomp = EdgeExtractor.bfs(decomp, max_bag_size=max_bag_size, budget=budget)
         sub_graph, rest_decomp, connecting_leaves = EdgeExtractor.extract_graph(internal_nodes,
                                                                                 copy.deepcopy(rest_decomp), g)
