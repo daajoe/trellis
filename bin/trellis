@@ -114,7 +114,7 @@ class SolverArgs(object):
 # TOOD: add own SAT/ASP-based solver
 available_local_solvers = [trellis.decomposer.TCSMeijin, trellis.decomposer.Jdrasilv1]
 available_global_solvers = [trellis.decomposer.HTD, trellis.decomposer.FlowCutter]
-available_extractors = [trellis.extractor.EdgeExtractor]
+available_extractors = [trellis.extractor.EdgeExtractor, trellis.extractor.ParamExtractor]
 
 
 # pcs_grp = root_group.add_argument_group('pcs')
@@ -144,6 +144,12 @@ def parse_args():
     # TODO: add to LI constructor
     parser.add_argument('-e', '--extractor', dest='extractor', action='store', type=str, help='extractor',
                         choices=names(available_extractors), default=trellis.extractor.EdgeExtractor.__name__)
+    parser.add_argument('-er', '--extractor_random', dest='extractor_random', action='store', type=bool,
+                        help='Radomized bfs', choices=[True, False], default=False)
+    parser.add_argument('-ec1','--extractor_c1',dest='extractor_c1',action='store',type=float,help='first constant for extractor', choices=[Range(0.0,1.0,log_scale=True)],default=1.0)
+    parser.add_argument('-ec2','--extractor_c2',dest='extractor_c2',action='store',type=float,help='second constant for extractor', choices=[Range(0.0,1.0,log_scale=True)],default=0.5)
+    parser.add_argument('-eb','--extractor_beta',dest='extractor_beta',action='store',type=int,help='distance from the root that forces nodes to be picked', choices=[1,2,3,4],default=2)
+    parser.add_argument('-eg','--extractor_gamma',dest='extractor_gamma',action='store',type=int,help='size of the subtree that is forced to be picked', choices=[Range(1,20)],default=2)
     # ==================================================================================================================
     #                LOCAL SOLVER
     # ==================================================================================================================
@@ -286,9 +292,9 @@ def main():
     wall_start = time.time()
 
     LI = trellis.LocalImprovement(filename=fname, global_solver=global_solver, local_solver=local_solver)
-
+    extractor_args=[args.extractor_c1,args.extractor_c2,args.extractor_beta,args.extractor_gamma,args.extractor_random]
     # TODO: ni as parameter
-    td = LI.decompose(lt=timeout, lb=lb, ni=ni, gt=global_solver_timeout, extractor=args.extractor)
+    td = LI.decompose(lt=timeout, lb=lb, ni=ni, gt=global_solver_timeout, extractor=args.extractor,extractor_args=extractor_args)
     wall = time.time() - wall_start
 
     res = LI.statistics()

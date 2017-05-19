@@ -49,7 +49,7 @@ class LocalImprovement(object):
                     inputgraph_max_edges=self.inputgraph_number_of_edges, lb=self.lb, lt=self.lt, gt=self.gt)
 
     # noinspection SpellCheckingInspection
-    def decompose(self, lt, lb, extractor=None, ni=10, gt=60):
+    def decompose(self, lt, lb, extractor=None, ni=10, gt=60,extractor_args=[]):
         """
         :param lt: local timeout
         :type lt: integer
@@ -97,7 +97,7 @@ class LocalImprovement(object):
                 logging.warn('old_maxbag(before everything) = %s' % global_td.max_bag_size())
                 rest_decomp, localgraph, connecting_nodes = extractor.extract_decomposition(global_td, inputgraph,
                                                                                             graph_max_bag_size,
-                                                                                            lb)
+                                                                                            lb,extractor_args=extractor_args)
                 logging.warn(
                     'cmax_bag_size = %s (%s); localgraph(#verts) = %s ; inputgraph(#verts) = %s; budget = %s ; '
                     'subsolver_runs = %s' % (
