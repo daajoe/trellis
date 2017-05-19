@@ -150,6 +150,9 @@ def parse_args():
     parser.add_argument('-ec2','--extractor_c2',dest='extractor_c2',action='store',type=float,help='second constant for extractor', choices=[Range(0.0,1.0,log_scale=True)],default=0.5)
     parser.add_argument('-eb','--extractor_beta',dest='extractor_beta',action='store',type=int,help='distance from the root that forces nodes to be picked', choices=[1,2,3,4],default=2)
     parser.add_argument('-eg','--extractor_gamma',dest='extractor_gamma',action='store',type=int,help='size of the subtree that is forced to be picked', choices=[Range(1,20)],default=2)
+    parser.add_argument('-ed', '--extractor_delta', dest='extractor_delta', action='store', type=int,
+                        help='buffer for budget', choices=[Range(1, 20)], default=2)
+
     # ==================================================================================================================
     #                LOCAL SOLVER
     # ==================================================================================================================
@@ -292,7 +295,7 @@ def main():
     wall_start = time.time()
 
     LI = trellis.LocalImprovement(filename=fname, global_solver=global_solver, local_solver=local_solver)
-    extractor_args=[args.extractor_c1,args.extractor_c2,args.extractor_beta,args.extractor_gamma,args.extractor_random]
+    extractor_args=[args.extractor_c1,args.extractor_c2,args.extractor_beta,args.extractor_gamma,args.extractor_random,args.extractor_delta]
     # TODO: ni as parameter
     td = LI.decompose(lt=timeout, lb=lb, ni=ni, gt=global_solver_timeout, extractor=args.extractor,extractor_args=extractor_args)
     wall = time.time() - wall_start

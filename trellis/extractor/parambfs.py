@@ -11,7 +11,7 @@ from trellis.td import TreeDecomposition
 
 class ParamExtractor(Extractor):
     @staticmethod
-    def bfs(decomp, max_bag_size=None, budget=50, rand=False, c1=1.0,c2=0.5,beta=5,gamma=10):
+    def bfs(decomp, max_bag_size=None, budget=50, rand=False, c1=1.0,c2=0.5,beta=5,gamma=10,delta=2):
         # get the bags from the tree decomposition
         """
 
@@ -93,7 +93,7 @@ class ParamExtractor(Extractor):
                         internal_nodes.remove(v2)
                     if new_node not in internal_nodes:
                         internal_nodes.append(new_node)
-                if len(sub_vertices) >= budget:
+                if len(sub_vertices) >= budget+delta*max_bag_size:
                     break
         return internal_nodes, sub_vertices, rest_decomp
 
@@ -151,7 +151,7 @@ class ParamExtractor(Extractor):
     def extract_decomposition(decomp, g, max_bag_size=None, budget=50,extractor_args=list([1.0,0.5,2,5,False])):
         internal_nodes, _, rest_decomp = ParamExtractor.bfs(decomp, max_bag_size=max_bag_size, budget=budget,
                                             c1=extractor_args[0],c2=extractor_args[1],beta=extractor_args[2],
-                                                            gamma=extractor_args[3],rand=extractor_args[4])
+                                            gamma=extractor_args[3],rand=extractor_args[4],delta=extractor_args[5])
         sub_graph, rest_decomp, connecting_leaves = ParamExtractor.extract_graph(internal_nodes,
                                                                                 copy.deepcopy(rest_decomp), g)
         return rest_decomp, sub_graph, connecting_leaves
