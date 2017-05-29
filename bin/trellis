@@ -307,7 +307,8 @@ def main():
          'global_solver_args': global_solver.args,
          'local_solver_args': local_solver.args})
 
-    print res
+    #TODO: add td_validate as submodule
+    # print res
     sys.stdout.write(json.dumps(res, sort_keys=True))
     sys.stdout.write('\n')
     sys.stdout.flush()

@@ -12,7 +12,8 @@ class HTD(PACEDecomposer):
     bin_name = 'htd'
     folder_name = 'htd'
 
-    #TODO: allow varying strategy
+    # TODO: allow varying strategy
+    # TODO: expose seed
     # min-fill          Minimum fill ordering algorithm (default)
     # min-degree        Minimum degree ordering algorithm
     # max-cardinality   Maximum cardinality search ordering algorithm
