@@ -7,6 +7,7 @@ from tempfile import NamedTemporaryFile
 import networkx as nx
 import subprocess
 
+from networkx.drawing.nx_agraph import graphviz_layout, write_dot
 
 class TreeDecomposition(object):
     # TODO: add debugging type
@@ -128,9 +129,9 @@ class TreeDecomposition(object):
             matplotlib.use('TkAgg')
 
             m = self.tree.copy()
-            pos = nx.graphviz_layout(m)
+            pos = graphviz_layout(m)
             if layout == 1:
-                pos = nx.graphviz_layout(m)
+                pos = graphviz_layout(m)
             elif layout == 2:
                 pos = nx.circular_layout(m)
             elif layout == 3:
