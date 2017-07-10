@@ -1,0 +1,10 @@
+pcs-file = trellis/params.pcs
+runObj = QUALITY
+cutoffTime = 1
+wallclock-limit = 60
+deterministic = 0
+instance_file = trellis/instances-train.txt
+#test_instance_file = trellis/instances-test.txt
+algo = /home/jfichte/src/trellis/bin/trellis
+#./example_scenarios/spear-generic-wrapper/spearWrapper.py --runsolver /home/jfichte/.local/bin/runsolver-3.3.5 --
+

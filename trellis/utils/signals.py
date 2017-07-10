@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
+import logging
 import os
 import sys
 
@@ -19,19 +20,19 @@ class InterruptException(AbortException):
 
 
 def handler(signum, frame):
-    sys.stderr.write('signum %s' % signum)
+    logging.error('signum %s' % signum)
     current_process = psutil.Process()
     children = current_process.children(recursive=True)
     for child in children:
-        sys.stderr.write('Child pid is {}\n'.format(child.pid))
-        sys.stderr.write('Killing child\n')
+        logging.error('Child pid is {}\n'.format(child.pid))
+        logging.error('Killing child.')
         try:
             os.kill(child.pid, 15)
         except OSError as e:
-            sys.stderr.write('Process might already be gone. See error below.\n')
-            sys.stderr.write('%s' % str(e))
+            logging.warn('Process might already be gone. See error below.')
+            logging.warn('%s' % str(e))
 
-    sys.stderr.write('SIGNAL received\n')
+    logging.warn('SIGNAL received')
     if signum == 15:
         raise TimeoutException('signal')
     else:
@@ -39,5 +40,5 @@ def handler(signum, frame):
 
 
 def nothing(signum, frame):
-    sys.stderr.write('SIGNAL received\n')
-    sys.stderr.write('SIGNAL ignored...\n')
+    logging.warn('SIGNAL received\n')
+    logging.warn('SIGNAL ignored...\n')
