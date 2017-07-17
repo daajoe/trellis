@@ -39,6 +39,9 @@ class SatWrapper(AbstractWrapper):
         binary_path = os.path.expanduser(binary_path)
         cmd = "%s -f %s" %(binary_path, runargs["instance"])
         #, runargs["seed"])       
+        print "*"*60
+        print config.items()
+        print "*"*60
         for name, value in config.items():
             cmd += " -%s %s" %(name,  value)
         return cmd
