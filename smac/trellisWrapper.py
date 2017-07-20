@@ -40,6 +40,7 @@ class SatWrapper(AbstractWrapper):
         cmd = "%s -f %s" %(binary_path, runargs["instance"])
         #, runargs["seed"])       
         for name, value in config.items():
+            value=value.replace("'","")
             cmd += " -%s %s" %(name,  value)
         return cmd
     
@@ -66,6 +67,7 @@ class SatWrapper(AbstractWrapper):
         import json
         lines = ''
         iterator = iter(data.split('\n'))
+        print iterator
         try:
             while True:
                 value=iterator.next()
