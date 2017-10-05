@@ -130,10 +130,10 @@ ExternalProject_Add_Step(tamaki2017-build tamaki2017-build_sh
 ExternalProject_Add(jdrasil2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/jdrasil
-        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/jdrasil
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/jdrasil
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/jdrasil
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/Jdrasil
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/Jdrasil
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/Jdrasil
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/Jdrasil
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/jdrasil2016
