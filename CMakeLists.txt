@@ -166,6 +166,60 @@ ExternalProject_Add(flowcutter2016-build
         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/pace2016/flow-cutter-pace16/flow_cutter_pace16 ${PROJECT_BINARY_DIR}/libs/flowcutter2016/flowcutter
         )
 
+ExternalProject_Add(flowcutter2017-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/Flow-Cutter
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/Flow-Cutter
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/Flow-Cutter
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/Flow-Cutter
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/flowcutter2017
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/Flow-Cutter/flow_cutter_pace17 ${PROJECT_BINARY_DIR}/libs/flowcutter2017/flowcutter
+        )
+
+
+# TODO: does not compile (missing dependency "stx-btree-dev")
+# ExternalProject_Add(tdlib2017-build
+#         DOWNLOAD_COMMAND git submodule update
+#         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+#         SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/tdlib
+#         BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
+#         STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
+#         TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
+#         CONFIGURE_COMMAND "${configure}"
+#         BUILD_COMMAND ${make}
+#         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/tdlib2017
+#         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/tdlib ${PROJECT_BINARY_DIR}/libs/tdlib2017/tdlib
+#         )
+
+ExternalProject_Add(minfill_mrs2017-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/minfill_mrs
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/minfill_mrs
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/minfill_mrs
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/minfill_mrs
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/minfillmrs2017
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/minfill_mrs/minfill_mrs ${PROJECT_BINARY_DIR}/libs/minfillmrs2017/minfillmrs
+        )
+
+ExternalProject_Add(minfillbg_mrs2017-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/minfillbg_mrs
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/minfillbg_mrs
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/minfillbg_mrs
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/minfillbg_mrs
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/minfillbgmrs2017
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/minfillbg_mrs/minfillbg_mrs ${PROJECT_BINARY_DIR}/libs/minfillbgmrs2017/minfillbgmrs
+        )
+      
 #subdirs(src/)
 
 #configure_file(
