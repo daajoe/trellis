@@ -72,6 +72,26 @@ ExternalProject_Add_Step(htd2016-build htd2016-build_sh
 )
 
 
+ExternalProject_Add(htd2017-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/htd
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/htd
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/htd
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/htd
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/htd2017
+        PREFIX ${PROJECT_BINARY_DIR}/libs/
+        INSTALL_COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/decomposer/latest/htd/bin/ ${PROJECT_SOURCE_DIR}/decomposer/pace2016/htd/lib/ ${PROJECT_BINARY_DIR}/libs/htd2017
+        )
+
+ExternalProject_Add_Step(htd2017-build htd2017-build_sh
+	COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/htd2017.sh ${PROJECT_SOURCE_DIR}/libs/htd2017/htd
+	DEPENDEES install
+	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/libs/
+	LOG 1
+)
+
+
 ExternalProject_Add(tamaki2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
@@ -85,6 +105,28 @@ ExternalProject_Add(tamaki2016-build
         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/pace2016/tamaki/tw-exact ${PROJECT_BINARY_DIR}/libs/tamaki2016/tamaki
         )
 
+ExternalProject_Add(tamaki2017-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/tamaki
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tamaki
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tamaki
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tamaki
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/tamaki2017
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/tamaki2017-exact.sh ${PROJECT_BINARY_DIR}/libs/tamaki2017/tamaki-exact
+        )
+
+ExternalProject_Add_Step(tamaki2017-build tamaki2017-build_sh
+        COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/tamaki2017-heuristic.sh ${PROJECT_BINARY_DIR}/libs/tamaki2017/tamaki-heuristic
+	DEPENDEES install
+	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/libs/
+	LOG 1
+)
+
+      
+      
 ExternalProject_Add(jdrasil2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}

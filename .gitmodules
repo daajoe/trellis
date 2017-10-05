@@ -30,7 +30,7 @@
 	url = git@github.com:td-mrs/minfillbg_mrs.git
 [submodule "decomposer/latest/tamaki"]
 	path = decomposer/latest/tamaki
-	url = git@github.com:TCS-Meiji/PACE2017-TrackA.git
+	url = git@github.com:daajoe/PACE2017-TrackA.git
 [submodule "decomposer/latest/Flow-Cutter"]
 	path = decomposer/latest/Flow-Cutter
 	url = git@github.com:kit-algo/flow-cutter-pace17.git
