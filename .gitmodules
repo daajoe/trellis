@@ -2,7 +2,7 @@
 	path = decomposer/pace2016/BZTreewidth
 	url = https://github.com/TomvdZanden/BZTreewidth.git
 [submodule "decomposer/treewidth-exact"]
-	path = decomposer/pace2016/tcs-meijin
+	path = decomposer/pace2016/tamaki
 	url = https://github.com/TCS-Meiji/treewidth-exact.git
 [submodule "decomposer/htd"]
 	path = decomposer/pace2016/htd
@@ -19,3 +19,21 @@
 [submodule "decomposer/pace2017/htd-master"]
 	path = decomposer/pace2017/htd-master
 	url = git@github.com:mabseher/htd.git
+[submodule "decomposer/latest/tdlib"]
+	path = decomposer/latest/tdlib
+	url = git@github.com:freetdi/p17.git
+[submodule "decomposer/latest/minfill_mrs"]
+	path = decomposer/latest/minfill_mrs
+	url = git@github.com:td-mrs/minfill_mrs.git
+[submodule "decomposer/latest/minfillbg_mrs"]
+	path = decomposer/latest/minfillbg_mrs
+	url = git@github.com:td-mrs/minfillbg_mrs.git
+[submodule "decomposer/latest/tamaki"]
+	path = decomposer/latest/tamaki
+	url = git@github.com:TCS-Meiji/PACE2017-TrackA.git
+[submodule "decomposer/latest/Flow-Cutter"]
+	path = decomposer/latest/Flow-Cutter
+	url = git@github.com:kit-algo/flow-cutter-pace17.git
+[submodule "decomposer/latest/Jdrasil"]
+	path = decomposer/latest/Jdrasil
+	url = git@github.com:daajoe/Jdrasil.git
