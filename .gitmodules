@@ -16,8 +16,8 @@
 [submodule "decomposer/td-validate"]
 	path = decomposer/td-validate
 	url = git@github.com:daajoe/td-validate.git
-[submodule "decomposer/pace2017/htd-master"]
-	path = decomposer/pace2017/htd-master
+[submodule "decomposer/latest/htd"]
+	path = decomposer/latest/htd
 	url = git@github.com:mabseher/htd.git
 [submodule "decomposer/latest/tdlib"]
 	path = decomposer/latest/tdlib

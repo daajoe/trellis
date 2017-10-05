@@ -52,76 +52,76 @@ set(ExternalProjectCMakeArgs
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         )
 
-ExternalProject_Add(htd-build
+ExternalProject_Add(htd2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/htd
-        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/htd
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/htd
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/htd
-        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/htd
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/htd
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/htd
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/htd
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/htd
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/htd2016
         PREFIX ${PROJECT_BINARY_DIR}/libs/
-        INSTALL_COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/decomposer/htd/bin/ ${PROJECT_SOURCE_DIR}/decomposer/htd/lib/ ${PROJECT_BINARY_DIR}/libs/htd
+        INSTALL_COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/decomposer/pace2016/htd/bin/ ${PROJECT_SOURCE_DIR}/decomposer/pace2016/htd/lib/ ${PROJECT_BINARY_DIR}/libs/htd2016
         )
 
-ExternalProject_Add_Step(htd-build htd-build_sh
-	COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/htd.sh ${PROJECT_SOURCE_DIR}/libs/htd/htd
+ExternalProject_Add_Step(htd2016-build htd2016-build_sh
+	COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/htd2016.sh ${PROJECT_SOURCE_DIR}/libs/htd2016/htd
 	DEPENDEES install
 	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/libs/
 	LOG 1
 )
 
 
-ExternalProject_Add(tcs-build
+ExternalProject_Add(tamaki2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/tcs-meijin
-        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/tcs-meijin
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/tcs-meijin
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/tcs-meijin
-        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/tcs
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/tamaki
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/tamaki
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/tamaki
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/tamaki
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/tamaki2016
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
-        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/tcs-meijin/tw-exact ${PROJECT_BINARY_DIR}/libs/tcs/tcs-meijin
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/pace2016/tamaki/tw-exact ${PROJECT_BINARY_DIR}/libs/tamaki2016/tamaki
         )
 
-ExternalProject_Add(jdrasil-build
+ExternalProject_Add(jdrasil2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/jdrasil
-        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/jdrasil
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/jdrasil
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/jdrasil
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/jdrasil
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/jdrasil
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/jdrasil
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/jdrasil
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
-        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/jdrasil
-        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/jdrasil.sh ${PROJECT_BINARY_DIR}/libs/jdrasil/jdrasil
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/jdrasil2016
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/jdrasil2016.sh ${PROJECT_BINARY_DIR}/libs/jdrasil2016/jdrasil
         )
 
-ExternalProject_Add(bztreewidth-build
+ExternalProject_Add(bztreewidth2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/BZTreewidth
-        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/BZTreewidth
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/BZTreewidth
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/BZTreewidth
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/BZTreewidth
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/BZTreewidth
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/BZTreewidth
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/BZTreewidth
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
-        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/bztw
-        INSTALL_COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/decomposer/BZTreewidth/bin/ ${PROJECT_BINARY_DIR}/libs/bztw
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/bztreewidth2016
+        INSTALL_COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/decomposer/pace2016/BZTreewidth/bin/ ${PROJECT_BINARY_DIR}/libs/bztreewidth2016
         )
 
-ExternalProject_Add(flowcutter-build
+ExternalProject_Add(flowcutter2016-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/flow-cutter-pace16
-        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/flow-cutter-pace16
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/flow-cutter-pace16
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/flow-cutter-pace16
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/flow-cutter-pace16
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/flow-cutter-pace16
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/flow-cutter-pace16
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/flow-cutter-pace16
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
-        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/flc
-        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/flow-cutter-pace16//flow_cutter_pace16 ${PROJECT_BINARY_DIR}/libs/flc/flow_cutter
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/flowcutter2016
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/pace2016/flow-cutter-pace16/flow_cutter_pace16 ${PROJECT_BINARY_DIR}/libs/flowcutter2016/flowcutter
         )
 
 #subdirs(src/)

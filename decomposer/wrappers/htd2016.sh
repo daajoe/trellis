@@ -9,6 +9,6 @@ kill_child_processes() {
 trap "kill_child_processes 1 $$; echo 'Caught signal' >&2; echo 'exiting...' >&2;" SIGINT SIGTERM
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR/../../decomposer/Jdrasil/jdrasil/src
+cd $DIR/../../decomposer/pace2016/htd/
 
 LD_LIBRARY_PATH=$DIR $DIR/htd_main "$@" < /dev/stdin
