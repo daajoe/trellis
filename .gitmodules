@@ -11,7 +11,7 @@
 	path = decomposer/pace2016/flow-cutter-pace16
 	url = https://github.com/ben-strasser/flow-cutter-pace16.git
 [submodule "decomposer/jdrasil"]
-	path = decomposer/pace2016/jdrasil
+	path = decomposer/pace2016/Jdrasil
 	url = git@github.com:daajoe/Jdrasil.git
 [submodule "decomposer/td-validate"]
 	path = decomposer/td-validate
