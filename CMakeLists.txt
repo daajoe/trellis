@@ -180,6 +180,20 @@ ExternalProject_Add(flowcutter2017-build
         )
 
 
+ExternalProject_Add(tdvalidate-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/td-validate
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/td-validate
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/td-validate
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/td-validate
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/tdvalidate
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/td-validate/td-validate ${PROJECT_BINARY_DIR}/libs/tdvalidate/tdvalidate
+        )
+
+
 # TODO: does not compile (missing dependency "stx-btree-dev")
 # ExternalProject_Add(tdlib2017-build
 #         DOWNLOAD_COMMAND git submodule update
