@@ -5,8 +5,8 @@ from trellis.decomposer.pace import PACEDecomposer
 # -heuristic
 
 class Jdrasilv1(PACEDecomposer):
-    name = 'jdrasil'
+    name = 'jdrasil2016'
     bin_name = 'jdrasil'
-    folder_name = 'jdrasil'
+    folder_name = 'jdrasil2016'
 
     args = ['-log -e PBLib_incremental', '-log -e commander', '-log -e PBLib']

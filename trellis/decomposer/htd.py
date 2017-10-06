@@ -8,9 +8,9 @@ from trellis.decomposer.pace import PACEDecomposer
 
 
 class HTD(PACEDecomposer):
-    name = 'htd'
+    name = 'htd2016'
     bin_name = 'htd'
-    folder_name = 'htd'
+    folder_name = 'htd2016'
 
     # TODO: allow varying strategy
     # TODO: expose seed

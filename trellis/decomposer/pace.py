@@ -90,10 +90,16 @@ class PACEDecomposer(Decomposer):
         logging.warning('CMD= "%s"' % cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         output, err = p.communicate()
-        rc = p.returncode
+        rc = int(p.returncode)
         if rc != 0 or err != '':
+            logging.warning("Return code was '%s'" % rc)
             for line in err.split('\n'):
-                logging.warning(line)
+                if len(line) == 0:
+                    continue
+                logging.critical(line)
+            logging.warning(
+                'Consult README and check whether the relevant sub-solver has been build correctly with cmake.')
+            exit(rc)
         return output
 
     # TODO: fix
