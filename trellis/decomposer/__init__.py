@@ -11,10 +11,10 @@ from decomposer import Decomposer
 
 #TESTING:
 # bztreewidth2016
-# minfillbgmrs2017  minfillmrs2017
 
 # DONE:
-# htd2016 htd2017 jdrasil2016  tamaki2016  tamaki2017 flowcutter2016  flowcutter2017 tdlib
+# htd2016 htd2017 jdrasil2016  tamaki2016  tamaki2017 flowcutter2016
+# flowcutter2017 tdlib minfillmrs2017 minfillbgmrs2017
 
 #TODO:
 #missing solver: cmake: mfjones, mrprajesh, elithelli
