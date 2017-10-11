@@ -7,9 +7,17 @@ from tempfile import NamedTemporaryFile
 import networkx as nx
 import subprocess
 
+import os
 from networkx.drawing.nx_agraph import graphviz_layout, write_dot
 
+
 class TreeDecomposition(object):
+    lib_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../libs/'))
+    folder_name = 'tdvalidate'
+    bin_name = 'tdvalidate'
+
+    path = os.path.join(lib_path, folder_name, bin_name)
+
     # TODO: add debugging type
     # add graph as parameter
     def __init__(self, tree=None, bags=None, td_name=None, graph=None, always_validate=True, temp_path='/tmp'):
@@ -30,10 +38,23 @@ class TreeDecomposition(object):
             graph.write_gr(graph_stream)
             with NamedTemporaryFile(mode='w', dir=self.temp_path, delete=self.delete_temp) as ostream:
                 written_decomp = self.write(ostream)
-                cmd = 'td-validate %s %s' % (graph_stream.name, ostream.name)
+                cmd = '%s %s %s' % (self.path, graph_stream.name, ostream.name)
                 validator = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,
                                              close_fds=True)
                 output, err = validator.communicate()
+                rc = int(validator.returncode)
+                if rc != 0:
+                    for line in err.split('\n'):
+                        if len(line) == 0:
+                            continue
+                        logging.critical(line)
+                    logging.warning('Return code was "%s"' % rc)
+                    if rc == 127:
+                        logging.warning(
+                            'Consult README and check whether td-validate has been build correctly with cmake.')
+
+                    exit(rc)
+
                 if not err.startswith('valid'):
                     logging.error('--- STDOUT ---')
                     logging.error(type, output)
@@ -50,17 +71,33 @@ class TreeDecomposition(object):
             graph.write_gr(graph_stream)
             with NamedTemporaryFile(mode='w', dir=self.temp_path, delete=self.delete_temp) as ostream:
                 written_decomp = self.write(ostream)
-                cmd = 'td-validate %s %s' % (graph_stream.name, ostream.name)
+                cmd = '%s %s %s' % (self.path, graph_stream.name, ostream.name)
                 validator = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,
                                              close_fds=True)
                 output, err = validator.communicate()
+                rc = int(validator.returncode)
+                if rc != 0:
+                    for line in err.split('\n'):
+                        if len(line) == 0:
+                            continue
+                        logging.critical(line)
+                    logging.warning('Return code was "%s"' % rc)
+                    if rc == 127:
+                        logging.warning(
+                            'Consult README and check whether td-validate has been build correctly with cmake.')
+                        logging.warning('CMD = %s' %cmd)
+
+                    exit(rc)
+
                 if not err.startswith('valid'):
                     logging.error('--- STDOUT ---')
-                    logging.error(name, output)
+                    logging.error('name=%s, output=%s' % (name, output))
                     logging.error('--- STDERR ---')
                     logging.error(err)
-                    written_decomp.show(layout=1)
+                    # TODO:
+                    # written_decomp.show(layout=1)
                     exit(1)
+                return True
 
     def write(self, ostream):
         tree_mapping = {org_id: id for id, org_id in izip(count(start=1), self.tree.nodes_iter())}

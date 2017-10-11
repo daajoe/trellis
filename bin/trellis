@@ -15,7 +15,7 @@
 # copy of the GNU General Public License along with
 # trellis.  If not, see <http://www.gnu.org/licenses/>.
 #
-# from __future__ import absolute_import, print_function
+from __future__ import absolute_import, print_function
 
 import argparse
 import inspect
@@ -28,9 +28,10 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections import defaultdict, namedtuple, OrderedDict
+from collections import defaultdict, OrderedDict
 from datetime import datetime
-from distutils import spawn
+
+from trellis.decomposer import Decomposer
 
 src_path = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
 src_path = os.path.realpath(os.path.join(src_path, '..'))
@@ -110,18 +111,44 @@ class SolverArgs(object):
             ret += '%s' % opts
         return ret
 
+    def get_selected_arg(self, solver_name, args):
+        try:
+            return self.args[solver_name][args]
+        except KeyError as e:
+            logging.error("Unknown option.")
+            logging.error("Selected option %s for solver %s." % (args, solver_name))
+            logging.error("However known options are as follows:")
+            for item, value in self.args[solver_name].iteritems():
+                logging.error("%s (%s)" % (item, value))
+            logging.error("Exiting...")
+            exit(2)
 
-# TODO: add remaining pace solvers
+
 # TOOD: add own SAT/ASP-based solver
-available_local_solvers = [trellis.decomposer.TCSMeijin, trellis.decomposer.Jdrasilv1]
-available_global_solvers = [trellis.decomposer.HTD, trellis.decomposer.FlowCutter]
+available_local_solvers = [trellis.decomposer.Tamaki2016, trellis.decomposer.Tamaki2017, trellis.decomposer.Jdrasil2016,
+                           trellis.decomposer.Jdrasil2017, trellis.decomposer.TdLib2017,
+                           trellis.decomposer.BzTreewidth2016,
+                           trellis.decomposer.HTD2016, trellis.decomposer.HTD2017,
+                           trellis.decomposer.TdLibHeuristic2017, trellis.decomposer.Elithelli2016,
+                           trellis.decomposer.JdrasilHeuristic2017, trellis.decomposer.TamakiHeuristic2017,
+                           trellis.decomposer.Minfillbgmrs2017, trellis.decomposer.Minfillmrs2017,
+                           trellis.decomposer.Mfjones2016, trellis.decomposer.Mrprajesh2016]
+
+available_global_solvers = [trellis.decomposer.HTD2016, trellis.decomposer.HTD2017,
+                            trellis.decomposer.FlowCutter2016, trellis.decomposer.FlowCutter2017,
+                            trellis.decomposer.JdrasilHeuristic2017,
+                            trellis.decomposer.TamakiHeuristic2017, trellis.decomposer.TdLibHeuristic2017,
+                            trellis.decomposer.Minfillbgmrs2017, trellis.decomposer.Minfillmrs2017,
+                            trellis.decomposer.Mfjones2016, trellis.decomposer.Mrprajesh2016,
+                            trellis.decomposer.Elithelli2016]
 available_extractors = [trellis.extractor.EdgeExtractor, trellis.extractor.ParamExtractor]
 
 
 # pcs_grp = root_group.add_argument_group('pcs')
 # default_grp = root_group.add_argument_group('defaults')
 def names(x):
-    return map(lambda x: x.__name__, x)
+    return map(lambda x: "%s" % x.__name__, x)
+
 
 
 # TODO: use configuration file for default solver configs and binary paths instead of take from solver
@@ -175,7 +202,7 @@ def parse_args():
                         choices=[Range(5, 172800, log_scale=True)], default=900)
     # TODO:
     parser.add_argument('-ls', '--local_solver', dest='local_solver', action='store', help='local solver',
-                        choices=names(available_local_solvers), default=trellis.decomposer.Jdrasilv1.__name__)
+                        choices=names(available_local_solvers), default=trellis.decomposer.Jdrasil2017.__name__)
     largs = SolverArgs(available_local_solvers, dependency='local_solver')
     parser.add_argument('-la', '--local_solver_args', dest='local_solver_args', action='store', type=str,
                         help='arguments for the local solver values are as follows: %s' % largs.help_str(),
@@ -190,7 +217,7 @@ def parse_args():
                         action='store', type=int, help='global timout (gt) / wall clock limit in seconds',
                         choices=[Range(5, 7200, log_scale=True)], default=60)
     parser.add_argument('-gs', '--global_solver', dest='global_solver', action='store', help='global solver',
-                        choices=names(available_global_solvers), default=trellis.decomposer.HTD.__name__)
+                        choices=names(available_global_solvers), default=trellis.decomposer.HTD2017.__name__)
     gargs = SolverArgs(available_global_solvers, dependency='global_solver')
     parser.add_argument('-ga', '--global_solver_args', dest='global_solver_args', action='store', type=str,
                         help='arguments for the global solver values are as follows: %s' % gargs.help_str(),
@@ -263,8 +290,10 @@ def parse_args():
         exit(0)
 
     is_valid_file(parser, args.instance)
-    args.global_solver = getattr(trellis.decomposer, args.global_solver)(args.temp_path)
-    args.local_solver = getattr(trellis.decomposer, args.local_solver)(args.temp_path)
+    gsolverargs = gargs.get_selected_arg(args.global_solver, args.global_solver_args)
+    args.global_solver = getattr(trellis.decomposer, args.global_solver)(temp_path=args.temp_path, args=gsolverargs)
+    lsolverargs = largs.get_selected_arg(args.local_solver, args.local_solver_args)
+    args.local_solver = getattr(trellis.decomposer, args.local_solver)(temp_path=args.temp_path, args=lsolverargs)
     args.extractor = getattr(trellis.extractor, args.extractor)()
     return args
 
@@ -314,8 +343,8 @@ def main():
     # 'system_info': get_system_info(),
     res.update(
         {'wall': round(wall, 4), 'run': runid, 'hash': sha, 'args': json_clean(vars(args)),
-         'global_solver_args': global_solver.args,
-         'local_solver_args': local_solver.args})
+         'global_solver_args': global_solver.args, 'global_solver_is_exact': not global_solver.is_heuristic,
+         'local_solver_args': local_solver.args, 'local_solver_is_exact': not local_solver.is_heuristic})
 
     # TODO: add td_validate as submodule
     # print res
