@@ -13,4 +13,5 @@ class TdLibHeuristic2017(PACEDecomposer):
     bin_name = 'tdlib'
     folder_name = 'tdlib2017'
     args = ['-m 128']
+    is_heuristic = True
 

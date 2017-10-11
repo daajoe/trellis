@@ -8,6 +8,7 @@ class HTD2016(PACEDecomposer):
     name = 'htd2016'
     bin_name = 'htd'
     folder_name = 'htd2016'
+    is_heuristic = True
 
     # Description:
     # min-fill          Minimum fill ordering algorithm (default)

@@ -15,6 +15,7 @@ from trellis.td import TreeDecomposition
 class PACEDecomposer(Decomposer):
     lib_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../libs/'))
     args = ['']
+    is_heuristic = False
 
     def __init__(self, temp_path, args='', always_validate=True):
         self.always_validate = always_validate

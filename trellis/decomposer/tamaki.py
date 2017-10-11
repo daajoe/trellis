@@ -19,3 +19,4 @@ class TamakiHeuristic2017(PACEDecomposer):
     name = 'tamaki2017'
     bin_name = 'tamaki-heuristic '
     folder_name = 'tamaki2017'
+    is_heuristic = True

@@ -15,7 +15,7 @@
 # copy of the GNU General Public License along with
 # trellis.  If not, see <http://www.gnu.org/licenses/>.
 #
-# from __future__ import absolute_import, print_function
+from __future__ import absolute_import, print_function
 
 import argparse
 import inspect
@@ -28,9 +28,10 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections import defaultdict, namedtuple, OrderedDict
+from collections import defaultdict, OrderedDict
 from datetime import datetime
-from distutils import spawn
+
+from trellis.decomposer import Decomposer
 
 src_path = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
 src_path = os.path.realpath(os.path.join(src_path, '..'))
@@ -126,13 +127,16 @@ class SolverArgs(object):
 # TOOD: add own SAT/ASP-based solver
 available_local_solvers = [trellis.decomposer.Tamaki2016, trellis.decomposer.Tamaki2017, trellis.decomposer.Jdrasil2016,
                            trellis.decomposer.Jdrasil2017, trellis.decomposer.TdLib2017,
-                           trellis.decomposer.BzTreewidth2016, trellis.decomposer.TdLibHeuristic2017,
-                           trellis.decomposer.HTD2016, trellis.decomposer.HTD2017]
+                           trellis.decomposer.BzTreewidth2016,
+                           trellis.decomposer.HTD2016, trellis.decomposer.HTD2017,
+                           trellis.decomposer.TdLibHeuristic2017, trellis.decomposer.Elithelli2016,
+                           trellis.decomposer.JdrasilHeuristic2017, trellis.decomposer.TamakiHeuristic2017,
+                           trellis.decomposer.Minfillbgmrs2017, trellis.decomposer.Minfillmrs2017,
+                           trellis.decomposer.Mfjones2016, trellis.decomposer.Mrprajesh2016]
 
-# TODO: jdrasil as global solver?
 available_global_solvers = [trellis.decomposer.HTD2016, trellis.decomposer.HTD2017,
                             trellis.decomposer.FlowCutter2016, trellis.decomposer.FlowCutter2017,
-                            trellis.decomposer.Jdrasil2016, trellis.decomposer.Jdrasil2017,
+                            trellis.decomposer.JdrasilHeuristic2017,
                             trellis.decomposer.TamakiHeuristic2017, trellis.decomposer.TdLibHeuristic2017,
                             trellis.decomposer.Minfillbgmrs2017, trellis.decomposer.Minfillmrs2017,
                             trellis.decomposer.Mfjones2016, trellis.decomposer.Mrprajesh2016,
@@ -143,7 +147,8 @@ available_extractors = [trellis.extractor.EdgeExtractor, trellis.extractor.Param
 # pcs_grp = root_group.add_argument_group('pcs')
 # default_grp = root_group.add_argument_group('defaults')
 def names(x):
-    return map(lambda x: x.__name__, x)
+    return map(lambda x: "%s" % x.__name__, x)
+
 
 
 # TODO: use configuration file for default solver configs and binary paths instead of take from solver
@@ -338,8 +343,8 @@ def main():
     # 'system_info': get_system_info(),
     res.update(
         {'wall': round(wall, 4), 'run': runid, 'hash': sha, 'args': json_clean(vars(args)),
-         'global_solver_args': global_solver.args,
-         'local_solver_args': local_solver.args})
+         'global_solver_args': global_solver.args, 'global_solver_is_exact': not global_solver.is_heuristic,
+         'local_solver_args': local_solver.args, 'local_solver_is_exact': not local_solver.is_heuristic})
 
     # TODO: add td_validate as submodule
     # print res
