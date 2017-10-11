@@ -220,8 +220,6 @@ ExternalProject_Add(tdlib2017-build
         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/tdlib/build/grtd/grtd ${PROJECT_BINARY_DIR}/libs/tdlib2017/tdlib
         )
 
-#/build/grtd/grtd
-
 ExternalProject_Add(minfill_mrs2017-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
@@ -235,6 +233,7 @@ ExternalProject_Add(minfill_mrs2017-build
         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/minfill_mrs/minfill_mrs ${PROJECT_BINARY_DIR}/libs/minfillmrs2017/minfillmrs
         )
 
+
 ExternalProject_Add(minfillbg_mrs2017-build
         DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
@@ -245,7 +244,7 @@ ExternalProject_Add(minfillbg_mrs2017-build
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/minfillbgmrs2017
-        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/minfillbg_mrs/minfillbg_mrs ${PROJECT_BINARY_DIR}/libs/minfillbgmrs2017/minfillbgmrs
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/minfillbg_mrs/minfillbg_mrs ${PROJECT_BINARY_DIR}/libs/minfillmrs2017/minfillbgmrs
         )
       
 #subdirs(src/)

@@ -16,4 +16,4 @@ class Minfillbgmrs2017(PACEDecomposer):
 class Minfillmrs2017(PACEDecomposer):
     name = 'minfillmrs2017'
     bin_name = 'minfillmrs'
-    folder_name = 'minfillbgmrs2017'
+    folder_name = 'minfillmrs2017'
