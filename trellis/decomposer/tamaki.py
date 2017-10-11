@@ -1,5 +1,4 @@
 #!/usr/bin/env false
-import os
 
 from trellis.decomposer.pace import PACEDecomposer
 

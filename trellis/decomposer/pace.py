@@ -1,16 +1,15 @@
+#!/usr/bin/env false
+
 import logging
 import os
 import subprocess
 import sys
+import traceback
 from itertools import chain
 from tempfile import NamedTemporaryFile
 
-import re
-
-import traceback
-
-from trellis.td import TreeDecomposition
 from trellis.decomposer.decomposer import Decomposer
+from trellis.td import TreeDecomposition
 
 
 class PACEDecomposer(Decomposer):

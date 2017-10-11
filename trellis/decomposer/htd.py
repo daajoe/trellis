@@ -1,8 +1,5 @@
 #!/usr/bin/env false
-import json
 import os
-from subprocess import Popen, PIPE, call
-import sys
 
 from trellis.decomposer.pace import PACEDecomposer
 
