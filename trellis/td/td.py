@@ -43,13 +43,13 @@ class TreeDecomposition(object):
                                              close_fds=True)
                 output, err = validator.communicate()
                 rc = int(validator.returncode)
-                if rc != 0 or not err.startswith('valid'):
+                if rc != 0:
                     for line in err.split('\n'):
                         if len(line) == 0:
                             continue
                         logging.critical(line)
                     logging.warning('Return code was "%s"' % rc)
-                    if rc == 124:
+                    if rc == 127:
                         logging.warning(
                             'Consult README and check whether td-validate has been build correctly with cmake.')
 

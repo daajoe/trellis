@@ -120,9 +120,9 @@ ExternalProject_Add(tamaki2017-build
 
 ExternalProject_Add_Step(tamaki2017-build tamaki2017-build_sh
         COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/tamaki2017-heuristic.sh ${PROJECT_BINARY_DIR}/libs/tamaki2017/tamaki-heuristic
-	DEPENDEES install
-	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/libs/
-	LOG 1
+	    DEPENDEES install
+	    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/libs/
+	    LOG 1
 )
 
       
@@ -138,6 +138,19 @@ ExternalProject_Add(jdrasil2016-build
         BUILD_COMMAND ${make}
         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/jdrasil2016
         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/jdrasil2016.sh ${PROJECT_BINARY_DIR}/libs/jdrasil2016/jdrasil
+        )
+
+ExternalProject_Add(jdrasil2017-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/Jdrasil
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/Jdrasil
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/Jdrasil
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/Jdrasil
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND gradle pace
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/jdrasil2017
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/jdrasil2017.sh ${PROJECT_BINARY_DIR}/libs/jdrasil2017/jdrasil
         )
 
 ExternalProject_Add(bztreewidth2016-build
@@ -194,19 +207,20 @@ ExternalProject_Add(tdvalidate-build
         )
 
 
-# TODO: does not compile (missing dependency "stx-btree-dev")
-# ExternalProject_Add(tdlib2017-build
-#         DOWNLOAD_COMMAND git submodule update
-#         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
-#         SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/tdlib
-#         BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
-#         STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
-#         TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
-#         CONFIGURE_COMMAND "${configure}"
-#         BUILD_COMMAND ${make}
-#         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/tdlib2017
-#         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/tdlib ${PROJECT_BINARY_DIR}/libs/tdlib2017/tdlib
-#         )
+ExternalProject_Add(tdlib2017-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/tdlib
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/tdlib
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/tdlib2017
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/tdlib/build/grtd/grtd ${PROJECT_BINARY_DIR}/libs/tdlib2017/tdlib
+        )
+
+#/build/grtd/grtd
 
 ExternalProject_Add(minfill_mrs2017-build
         DOWNLOAD_COMMAND git submodule update

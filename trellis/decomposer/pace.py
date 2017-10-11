@@ -5,6 +5,10 @@ import sys
 from itertools import chain
 from tempfile import NamedTemporaryFile
 
+import re
+
+import traceback
+
 from trellis.td import TreeDecomposition
 from trellis.decomposer.decomposer import Decomposer
 
@@ -17,7 +21,6 @@ class PACEDecomposer(Decomposer):
         self.always_validate = always_validate
         self.args = args
         self.temp_path = temp_path
-        # from distutils import spawn
 
     def decompose(self, graph, timeout=30, name=None):
         # type: (Graph, integer) -> tuple
@@ -51,26 +54,38 @@ class PACEDecomposer(Decomposer):
             # raise RuntimeWarning('No input string from subsolver.\n')
             return td
         num_bags = td_max_bag_size = num_vertices = 0
-        for line in lines.split('\n'):
-            line = line.split()
-            # noinspection PySimplifyBooleanCheck
-            if line == []:
-                continue
-            if line[0] == 'c':
-                logging.warning('-' * 20 + 'INFO from solver' + '-' * 20)
-                logging.warning('%s' % ' '.join(line))
-                logging.warning('-' * 80)
-                continue
-            elif line[0] == 's' and line[1] == 'td':
-                num_bags, td_max_bag_size, num_vertices = map(int, line[2:])
-                # sys.stderr.write('%s\n' % str(line))
-            elif line[0] == 'b':
-                bag_name = int(line[1])
-                td.bags[bag_name] = set(map(int, line[2:]))
-                td.tree.add_node(bag_name)
-            else:
-                u, v = map(int, line)
-                td.tree.add_edge(u, v)
+
+        try:
+            for line in lines.split('\n'):
+                line = line.split()
+                # noinspection PySimplifyBooleanCheck
+                if line == []:
+                    continue
+                if line[0] == 'c':
+                    logging.warning('-' * 20 + 'INFO from solver' + '-' * 20)
+                    logging.warning('%s' % ' '.join(line))
+                    logging.warning('-' * 80)
+                    continue
+                elif line[0] == 's' and line[1] == 'td':
+                    num_bags, td_max_bag_size, num_vertices = map(int, line[2:])
+                    # sys.stderr.write('%s\n' % str(line))
+                elif line[0] == 'b':
+                    bag_name = int(line[1])
+                    td.bags[bag_name] = set(map(int, line[2:]))
+                    td.tree.add_node(bag_name)
+                else:
+                    u, v = map(int, line)
+                    td.tree.add_edge(u, v)
+        except ValueError as e:
+            logging.critical("Solver returned undefined result")
+            logging.critical(e)
+            logging.warning("Output was:")
+            for line in lines.split('\n'):
+                logging.warning(line)
+            for line in traceback.format_exc().split('\n'):
+                logging.critical(line)
+            logging.critical('Exiting...')
+            exit(143)
         # decomps of single bags require special treatment
         if len(td) == 1:
             # noinspection PyUnresolvedReferences
@@ -91,15 +106,19 @@ class PACEDecomposer(Decomposer):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         output, err = p.communicate()
         rc = int(p.returncode)
-        if rc != 0 or err != '':
+        if rc != 0:
             logging.warning("Return code was '%s'" % rc)
-            for line in err.split('\n'):
-                if len(line) == 0:
-                    continue
-                logging.critical(line)
-            logging.warning(
-                'Consult README and check whether the relevant sub-solver has been build correctly with cmake.')
-            exit(rc)
+            if rc == 124:
+                logging.info("Hit timeout... (This is usually fine, in particular, for solvers such as flowcutter)")
+            else:
+                for line in err.split('\n'):
+                    if len(line) == 0:
+                        continue
+                    logging.critical(line)
+                if rc == 127:
+                    logging.warning(
+                        'Consult README and check whether the relevant sub-solver has been build correctly with cmake.')
+                exit(rc)
         return output
 
     # TODO: fix

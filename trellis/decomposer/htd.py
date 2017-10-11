@@ -7,7 +7,7 @@ import sys
 from trellis.decomposer.pace import PACEDecomposer
 
 
-class HTD(PACEDecomposer):
+class HTD2016(PACEDecomposer):
     name = 'htd2016'
     bin_name = 'htd'
     folder_name = 'htd2016'
@@ -25,3 +25,9 @@ class HTD(PACEDecomposer):
         cmd = 'timeout %i %s --iterations %i --opt width --output td --input gr --strategy challenge < %s' \
               % (timeout, path, iterations, instance_path)
         return self.call(cmd)
+
+
+class HTD2017(HTD2016):
+    name = 'htd2017'
+    bin_name = 'htd'
+    folder_name = 'htd2017'
