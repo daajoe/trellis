@@ -5,12 +5,13 @@ import sys
 
 from trellis.decomposer.pace import PACEDecomposer
 
-#TODO:
+
+# TODO:
 class FlowCutter(PACEDecomposer):
     name = 'fc'
     path = 'flow_cutter'
 
-    #TODO: allow varying strategy
+    # TODO: allow varying strategy
     # min-fill          Minimum fill ordering algorithm (default)
     # min-degree        Minimum degree ordering algorithm
     # max-cardinality   Maximum cardinality search ordering algorithm

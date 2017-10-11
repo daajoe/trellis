@@ -7,9 +7,12 @@
 [submodule "decomposer/htd"]
 	path = decomposer/htd
 	url = git@github.com:mabseher/htd.git
-[submodule "decomposer/Jdrasil"]
-	path = decomposer/Jdrasil
-	url = git@github.com:daajoe/Jdrasil.git
 [submodule "decomposer/flow-cutter-pace16"]
 	path = decomposer/flow-cutter-pace16
 	url = https://github.com/ben-strasser/flow-cutter-pace16.git
+[submodule "decomposer/jdrasil"]
+	path = decomposer/jdrasil
+	url = git@github.com:daajoe/Jdrasil.git
+[submodule "decomposer/td-validate"]
+	path = decomposer/td-validate
+	url = git@github.com:daajoe/td-validate.git

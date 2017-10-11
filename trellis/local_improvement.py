@@ -5,6 +5,7 @@ import signal
 
 from trellis import decomposer
 from trellis.extractor.edges import EdgeExtractor
+from trellis.extractor.parambfs import ParamExtractor
 from trellis.graph import Graph
 from trellis.td import TreeDecomposition
 from trellis.utils.signals import nothing, AbortException
@@ -48,7 +49,7 @@ class LocalImprovement(object):
                     inputgraph_max_edges=self.inputgraph_number_of_edges, lb=self.lb, lt=self.lt, gt=self.gt)
 
     # noinspection SpellCheckingInspection
-    def decompose(self, lt, lb, extractor=None, gt=60):
+    def decompose(self, lt, lb, extractor=None, ni=10, gt=60,extractor_args=dict()):
         """
         :param lt: local timeout
         :type lt: integer
@@ -56,6 +57,8 @@ class LocalImprovement(object):
         :type lb: integer
         :param extractor:
         :type extractor: Extractor
+        :param ni: number of no-improvement rounds
+        :type ni: integer
         :param gt: global timeout
         :type gt: integer
         :rtype: TreeDecomposition
@@ -86,7 +89,7 @@ class LocalImprovement(object):
 
             global_td.validate(graph=inputgraph, type='initial')
             self.globalsolver_mbsize = global_td.max_bag_size()
-            lb_remaining = lb
+            lb_remaining = ni
 
             while lb_remaining > 0:
                 self.rounds += 1
@@ -94,7 +97,7 @@ class LocalImprovement(object):
                 logging.warn('old_maxbag(before everything) = %s' % global_td.max_bag_size())
                 rest_decomp, localgraph, connecting_nodes = extractor.extract_decomposition(global_td, inputgraph,
                                                                                             graph_max_bag_size,
-                                                                                            lb)
+                                                                                            lb,extractor_args=extractor_args)
                 logging.warn(
                     'cmax_bag_size = %s (%s); localgraph(#verts) = %s ; inputgraph(#verts) = %s; budget = %s ; '
                     'subsolver_runs = %s' % (
