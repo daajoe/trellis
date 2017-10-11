@@ -115,7 +115,7 @@ class SolverArgs(object):
             return self.args[solver_name][args]
         except KeyError as e:
             logging.error("Unknown option.")
-            logging.error("Selected option %s for solver %s." %(args, solver_name))
+            logging.error("Selected option %s for solver %s." % (args, solver_name))
             logging.error("However known options are as follows:")
             for item, value in self.args[solver_name].iteritems():
                 logging.error("%s (%s)" % (item, value))
@@ -123,8 +123,6 @@ class SolverArgs(object):
             exit(2)
 
 
-
-# TODO: add remaining pace solvers
 # TOOD: add own SAT/ASP-based solver
 available_local_solvers = [trellis.decomposer.Tamaki2016, trellis.decomposer.Tamaki2017, trellis.decomposer.Jdrasil2016,
                            trellis.decomposer.Jdrasil2017, trellis.decomposer.TdLib2017,
@@ -132,12 +130,13 @@ available_local_solvers = [trellis.decomposer.Tamaki2016, trellis.decomposer.Tam
                            trellis.decomposer.HTD2016, trellis.decomposer.HTD2017]
 
 # TODO: jdrasil as global solver?
-# TODO: 2016 pace: mrprajesh, mfjones, elithelli (cmake etc.)
 available_global_solvers = [trellis.decomposer.HTD2016, trellis.decomposer.HTD2017,
                             trellis.decomposer.FlowCutter2016, trellis.decomposer.FlowCutter2017,
                             trellis.decomposer.Jdrasil2016, trellis.decomposer.Jdrasil2017,
                             trellis.decomposer.TamakiHeuristic2017, trellis.decomposer.TdLibHeuristic2017,
-                            trellis.decomposer.Minfillbgmrs2017, trellis.decomposer.Minfillmrs2017]
+                            trellis.decomposer.Minfillbgmrs2017, trellis.decomposer.Minfillmrs2017,
+                            trellis.decomposer.Mfjones2016, trellis.decomposer.Mrprajesh2016,
+                            trellis.decomposer.Elithelli2016]
 available_extractors = [trellis.extractor.EdgeExtractor, trellis.extractor.ParamExtractor]
 
 

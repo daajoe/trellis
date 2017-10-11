@@ -246,7 +246,49 @@ ExternalProject_Add(minfillbg_mrs2017-build
         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/minfillbgmrs2017
         INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/latest/minfillbg_mrs/minfillbg_mrs ${PROJECT_BINARY_DIR}/libs/minfillmrs2017/minfillbgmrs
         )
-      
+
+
+ExternalProject_Add(mfjones2016-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/mfjones
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mfjones
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mfjones
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mfjones
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/mfjones2016
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/wrappers/mfjones.sh  ${PROJECT_BINARY_DIR}/libs/mfjones2016/mfjones
+        )
+
+ExternalProject_Add(mrprajesh2016-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/mrprajesh
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mrprajesh
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mrprajesh
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mrprajesh
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/mrprajesh2016
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/pace2016/mrprajesh/tw-heuristic ${PROJECT_BINARY_DIR}/libs/mrprajesh2016/mrprajesh
+        )
+
+
+ExternalProject_Add(elithelli2016-build
+        DOWNLOAD_COMMAND git submodule update
+        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/elithelli
+        BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/elithelli
+        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/elithelli
+        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/elithelli
+        CONFIGURE_COMMAND "${configure}"
+        BUILD_COMMAND ${make}
+        INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/elithelli2016
+        INSTALL_COMMAND cmake -E copy ${PROJECT_SOURCE_DIR}/decomposer/pace2016/elithelli/tw-heuristic ${PROJECT_BINARY_DIR}/libs/elithelli2016/elithelli
+        )
+
+
 #subdirs(src/)
 
 #configure_file(
