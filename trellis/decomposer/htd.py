@@ -9,13 +9,12 @@ class HTD2016(PACEDecomposer):
     bin_name = 'htd'
     folder_name = 'htd2016'
 
-    # TODO: allow varying strategy
-    # TODO: expose seed
+    # Description:
     # min-fill          Minimum fill ordering algorithm (default)
     # min-degree        Minimum degree ordering algorithm
     # max-cardinality   Maximum cardinality search ordering algorithm
     # challenge
-    # min-degree
+    args = ['challenge', 'min-degree', 'min-fill', 'max-cardinality']
 
     def call_solver(self, instance_path, timeout=30, iterations=100):
         path = os.path.join(self.lib_path, self.folder_name, self.bin_name)
