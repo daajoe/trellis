@@ -221,7 +221,7 @@ ExternalProject_Add(tdlib2017-build
         )
 
 ExternalProject_Add(minfill_mrs2017-build
-        DOWNLOAD_COMMAND git submodule update
+	DOWNLOAD_COMMAND git submodule update
         DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
         SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/latest/minfill_mrs
         BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/latest/minfill_mrs
@@ -249,12 +249,11 @@ ExternalProject_Add(minfillbg_mrs2017-build
 
 
 ExternalProject_Add(mfjones2016-build
-        DOWNLOAD_COMMAND git submodule update
-        DOWNLOAD_DIR ${PROJECT_SOURCE_DIR}
+	GIT_REPOSITORY https://github.com/mfjones/pace2016.git
         SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/mfjones
         BINARY_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mfjones
-        STAMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mfjones
-        TMP_DIR ${PROJECT_BINARY_DIR}/decomposer/pace2016/mfjones
+        STAMP_DIR ${PROJECT_BINARY_DIR}/build/src
+	TMP_DIR ${PROJECT_BINARY_DIR}/build/tmp
         CONFIGURE_COMMAND "${configure}"
         BUILD_COMMAND ${make}
         INSTALL_DIR ${PROJECT_BINARY_DIR}/libs/mfjones2016
