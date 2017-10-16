@@ -31,15 +31,16 @@ import time
 from collections import defaultdict, OrderedDict
 from datetime import datetime
 
-from trellis.decomposer import Decomposer
 
-src_path = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(inspect.currentframe()))[0]))
-src_path = os.path.realpath(os.path.join(src_path, '..'))
+src_path = os.path.abspath(os.path.realpath(inspect.getfile(inspect.currentframe())))
+src_path = os.path.realpath(os.path.join(src_path, '../..'))
+
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
 # TODO: not sure whether this works for package installation
 import trellis
+from trellis.decomposer import Decomposer
 
 __author__ = 'Johannes K. Fichte'
 __license__ = 'GPL'
@@ -158,6 +159,9 @@ def parse_args():
     parser.add_argument('--version', action='version', version='%(prog)s {version}'.format(version=__version__))
     parser.add_argument('--runid', dest='runid', action='store', type=int, help='id of the current repeation',
                         default=1)
+
+    parser.add_argument('-o', '--output', dest='output', action='store', type=lambda x: os.path.realpath(x),
+                            help='output decomposition into file')
 
     root_group = parser.add_mutually_exclusive_group()
     root_group.add_argument('--pcs', dest='pcs', action='store_true',
@@ -346,6 +350,10 @@ def main():
          'global_solver_args': global_solver.args, 'global_solver_is_exact': not global_solver.is_heuristic,
          'local_solver_args': local_solver.args, 'local_solver_is_exact': not local_solver.is_heuristic})
 
+    if not os.path.exists(args.output): 
+        with open(args.output, 'w') as f:
+            td.write(f)
+    
     # TODO: add td_validate as submodule
     # print res
     sys.stdout.write(json.dumps(res, sort_keys=True))
