@@ -87,3 +87,16 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# cmake and build ignores
+CMakeFiles/*
+*.cmake
+CMakeCache.txt
+Makefile
+libs/
+
+DartConfiguration.tcl
+
+# emacs backups and lockfiles
+*~
+\#*\#
