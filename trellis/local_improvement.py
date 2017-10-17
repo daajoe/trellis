@@ -93,6 +93,12 @@ class LocalImprovement(object):
             self.globalsolver_mbsize = global_td.max_bag_size()
             lb_remaining = ni
 
+            if ni == 0:
+                logging.warn('INITIAL VALUE WAS max_bags=%s' % self.globalsolver_mbsize)
+                logging.warn('RESULT max_bags=%s' % global_td.max_bag_size())
+                logging.warn('RESULT width=%s' % (global_td.max_bag_size() - 1))
+                return global_td
+
             while lb_remaining > 0:
                 self.rounds += 1
                 cdecomp = copy.deepcopy(global_td)
@@ -128,7 +134,7 @@ class LocalImprovement(object):
                 if not (new_decomp.max_bag_size() < graph_max_bag_size):
                     lb_remaining -= 1
                 else:
-                    lb_remaining = lb
+                    lb_remaining = ni
                     self.rounds_last_improved = self.rounds
                     self.rounds_improved += 1
                     self.res = new_decomp.max_bag_size()

@@ -161,7 +161,7 @@ def parse_args():
                         default=1)
 
     parser.add_argument('-o', '--output', dest='output', action='store', type=lambda x: os.path.realpath(x),
-                            help='output decomposition into file')
+                            help='output decomposition into file', default=None)
 
     root_group = parser.add_mutually_exclusive_group()
     root_group.add_argument('--pcs', dest='pcs', action='store_true',
@@ -350,7 +350,8 @@ def main():
          'global_solver_args': global_solver.args, 'global_solver_is_exact': not global_solver.is_heuristic,
          'local_solver_args': local_solver.args, 'local_solver_is_exact': not local_solver.is_heuristic})
 
-    if not os.path.exists(args.output): 
+    
+    if args.output and not os.path.exists(args.output): 
         with open(args.output, 'w') as f:
             td.write(f)
     
