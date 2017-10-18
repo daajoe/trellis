@@ -12,6 +12,12 @@ set(CPACK_PACKAGE_VERSION_MAJOR "2")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
+
+#TODO: error message
+#if(UNIX AND NOT APPLE)
+#    # for Linux, BSD, Solaris, Minix
+#endif()
+
 include(CPack)
 include(CTest)
 include(CheckIncludeFileCXX)
