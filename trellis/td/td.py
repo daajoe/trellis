@@ -102,10 +102,10 @@ class TreeDecomposition(object):
     def write(self, ostream):
         tree_mapping = {org_id: id for id, org_id in izip(count(start=1), self.tree.nodes_iter())}
         tree = nx.relabel_nodes(self.tree, tree_mapping, copy=True)
-        max_bag_size = reduce(max, map(len, self.bags.itervalues() or [0]))
+        max_bag_size = self.max_bag_size() #reduce(max, map(len, self.bags.itervalues() or [0]))
         num_vertices = reduce(lambda x, y: max(x, max(y or [0])), self.bags.itervalues(), 0)
         ostream.write('s td %s %s %s\n' % (len(self.bags), max_bag_size, num_vertices))
-
+        
         relabeled_bags = {tree_mapping[k]: v for k, v in self.bags.iteritems()}
         relabeled_bags = sorted(relabeled_bags.items(), key=itemgetter(0))
         for bag_id, bag in relabeled_bags:
