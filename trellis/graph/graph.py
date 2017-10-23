@@ -4,6 +4,7 @@ from __future__ import print_function
 import gzip
 from bz2 import BZ2File
 from itertools import count, izip
+import backports.lzma as xz
 
 import mimetypes
 import networkx as nx
@@ -61,6 +62,8 @@ class Graph(nx.Graph):
                 stream = BZ2File(filename, 'r')
             elif mtype == 'gz':
                 stream = gzip.open(filename, 'r')
+            elif mtype == 'xz':
+                stream = xz.open(filename, 'r')
             else:
                 raise IOError('Unknown input type "%s" for file "%s"' % (mtype, filename))
             for line in stream:

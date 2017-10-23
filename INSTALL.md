@@ -1,7 +1,7 @@
 # Installation of trellis
 ## Installation on Linux Ubuntu (tested on trusty)
 ```bash
-sudo apt-get install git make cmake build-essential mono-complete openjdk-8-jdk gradle automake stx-btree-dev libboost-graph-dev libboost-thread-dev libboost-system-dev zlib1g-dev libtool python-pip gcc
+sudo apt-get install git make cmake build-essential mono-complete openjdk-8-jdk gradle automake stx-btree-dev libboost-graph-dev libboost-thread-dev libboost-system-dev zlib1g-dev libtool python-pip gcc xz-utils liblzma-dev
 pip install --user --upgrade pip
 ```
 
@@ -18,7 +18,7 @@ Notes:
 
 ## Installation on Debian (jessie)
 ```bash
-sudo apt-get install git make cmake build-essential mono-complete automake stx-btree-dev libboost-graph-dev libboost-thread-dev libboost-system-dev zlib1g-dev libtool python-pip gcc python-dev libyaml-dev libpython2.7-dev
+sudo apt-get install git make cmake build-essential mono-complete automake stx-btree-dev libboost-graph-dev libboost-thread-dev libboost-system-dev zlib1g-dev libtool python-pip gcc python-dev libyaml-dev libpython2.7-dev xz-utils liblzma-dev
 pip install --user --upgrade pip
 ```
 
@@ -91,10 +91,11 @@ Then, proceed with Linux installation. Note that we require more than *2GB memor
     2) Disk: 1GB (due to gradle/jdk8/mono dependencies for external solvers)
 1) Linux (Debian)
 2) Trellis
-    - cmake
+    - cmake > 3.5
     - python 2.7
     - pip
     - requirements.txt (python dependencies)
+    - xz-utils (for compressed files)
 3) Sub-Solvers
     - automake (tdlib)
     - boost graph, thread, system (tdlib)
