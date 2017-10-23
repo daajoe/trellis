@@ -17,19 +17,21 @@ class PACEDecomposer(Decomposer):
     args = ['']
     is_heuristic = False
 
-    def __init__(self, temp_path, args='', always_validate=True):
+    def __init__(self, temp_path, args='', always_validate=True, delete_temp=True, plot_if_td_invalid=False):
         self.always_validate = always_validate
         self.args = args
         self.temp_path = temp_path
+        self.delete_temp = delete_temp
+        self.plot_if_td_invalid = plot_if_td_invalid
 
     def decompose(self, graph, timeout=30, name=None):
         # type: (Graph, integer) -> tuple
         # TODO: change to cStringIO.StringIO()?
-        with NamedTemporaryFile(mode='w', dir=self.temp_path, delete=False) as tmp_file:
+        with NamedTemporaryFile(mode='w', dir=self.temp_path, delete=self.delete_temp) as tmp_file:
             relabeled_graph, vertex_mapping = graph.write_gr(tmp_file)
             ret = self.call_solver(tmp_file.name, timeout=timeout)
             # convert string into nx.td
-            td = PACEDecomposer.pacestr2nxdecomp(ret, graph=relabeled_graph, name=name)
+            td = self.pacestr2nxdecomp(ret, graph=relabeled_graph, name=name)
             if td.max_bag_size() is None:
                 return td, vertex_mapping, relabeled_graph
         logging.info('Subgraph Result(max_bag_size): %s' % td.max_bag_size())
@@ -37,8 +39,7 @@ class PACEDecomposer(Decomposer):
             td.validate2()
         return td, vertex_mapping, relabeled_graph
 
-    @staticmethod
-    def pacestr2nxdecomp(lines, graph, name):
+    def pacestr2nxdecomp(self, lines, graph, name):
         """
 
         :param lines:
@@ -47,7 +48,8 @@ class PACEDecomposer(Decomposer):
         :rtype: TreeDecomposition
         :return:
         """
-        td = TreeDecomposition(graph=graph, td_name=name)
+        td = TreeDecomposition(graph=graph, td_name=name, temp_path=self.temp_path,
+                               plot_if_td_invalid=self.plot_if_td_invalid)
         if lines == '':
             sys.stderr.write('No input string from solver.')
             # TODO:

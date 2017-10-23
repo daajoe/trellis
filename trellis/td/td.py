@@ -20,14 +20,16 @@ class TreeDecomposition(object):
 
     # TODO: add debugging type
     # add graph as parameter
-    def __init__(self, tree=None, bags=None, td_name=None, graph=None, always_validate=True, temp_path='/tmp'):
+    def __init__(self, tree=None, bags=None, td_name=None, graph=None, always_validate=True, temp_path='/tmp',
+                 delete_temp=True, plot_if_td_invalid=False):
         self.always_validate = always_validate
         self.graph = graph
         self.name = td_name
         self.temp_path = temp_path
         self.tree = nx.Graph() if not tree else tree
         self.bags = {} if not bags else bags
-        self.delete_temp = True if not __debug__ else False
+        self.delete_temp = delete_temp
+        self.plot_if_td_invalid = plot_if_td_invalid
 
     def __len__(self):
         return len(self.bags)
@@ -85,7 +87,7 @@ class TreeDecomposition(object):
                     if rc == 127:
                         logging.warning(
                             'Consult README and check whether td-validate has been build correctly with cmake.')
-                        logging.warning('CMD = %s' %cmd)
+                        logging.warning('CMD = %s' % cmd)
 
                     exit(rc)
 
@@ -94,18 +96,18 @@ class TreeDecomposition(object):
                     logging.error('name=%s, output=%s' % (name, output))
                     logging.error('--- STDERR ---')
                     logging.error(err)
-                    # TODO:
-                    # written_decomp.show(layout=1)
+                    if self.plot_if_td_invalid:
+                        written_decomp.show(layout=1)
                     exit(1)
                 return True
 
     def write(self, ostream):
         tree_mapping = {org_id: id for id, org_id in izip(count(start=1), self.tree.nodes_iter())}
         tree = nx.relabel_nodes(self.tree, tree_mapping, copy=True)
-        max_bag_size = self.max_bag_size() #reduce(max, map(len, self.bags.itervalues() or [0]))
+        max_bag_size = self.max_bag_size()  # reduce(max, map(len, self.bags.itervalues() or [0]))
         num_vertices = reduce(lambda x, y: max(x, max(y or [0])), self.bags.itervalues(), 0)
         ostream.write('s td %s %s %s\n' % (len(self.bags), max_bag_size, num_vertices))
-        
+
         relabeled_bags = {tree_mapping[k]: v for k, v in self.bags.iteritems()}
         relabeled_bags = sorted(relabeled_bags.items(), key=itemgetter(0))
         for bag_id, bag in relabeled_bags:
@@ -113,7 +115,8 @@ class TreeDecomposition(object):
         for u, v in tree.edges_iter():
             ostream.write('%s %s\n' % (u, v))
         ostream.flush()
-        return TreeDecomposition(tree=tree, bags=dict(relabeled_bags))
+        return TreeDecomposition(tree=tree, bags=dict(relabeled_bags), temp_path=self.temp_path,
+                                 delete_temp=self.delete_temp, plot_if_td_invalid=self.plot_if_td_invalid)
 
     def max_bag_size(self):
         ret = 0
@@ -143,7 +146,8 @@ class TreeDecomposition(object):
         for key, bag in new_bags.iteritems():
             new_bags[key] = set(map(lambda x: inv_mapping[x], bag))
         # TODO: refactor
-        return TreeDecomposition(tree=ret_tree, bags=new_bags)
+        return TreeDecomposition(tree=ret_tree, bags=new_bags, temp_path=self.temp_path, delete_temp=self.delete_temp,
+                                 plot_if_td_invalid=self.plot_if_td_invalid)
 
     def show(self, layout, nolabel=0):
         """ show graph
@@ -154,7 +158,7 @@ class TreeDecomposition(object):
         5: random,
         6: shell
         """
-        if not __debug__:
+        if not self.plot_if_td_invalid:
             logging.error('written_decomp(tree)=%s', self.tree.edges())
             logging.error('written_decomp(bags)=%s', self.bags)
 

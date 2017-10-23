@@ -13,7 +13,7 @@ from trellis.utils.signals import nothing, AbortException
 
 class LocalImprovement(object):
     # TODO: move solver to solver class
-    def __init__(self, filename, global_solver, local_solver):
+    def __init__(self, filename, global_solver, local_solver, temp_path, delete_temp=True, min_width=0):
         """
         :param filename:
         :type filename: string
@@ -21,6 +21,8 @@ class LocalImprovement(object):
         :type global_solver: Decomposer
         :param local_solver:
         :type local_solver: Decomposer
+        :parm min_width: start local improvement if the global solver returned a decomposition above min_width
+        :type min_width: int
         """
 
         self.rounds = 0
@@ -37,16 +39,20 @@ class LocalImprovement(object):
         self.inputgraph_number_of_edges = None
         self.solved = False
         self.lb = self.lt = self.gt = None
+        self.delete_temp = delete_temp
+        self.temp_path = temp_path
+        self.min_bagsize_for_localsolver_runs = min_width + 1
 
     def statistics(self):
         return dict(instance=self.filename, width=self.res - 1, li_mbsize=self.res,
                     ubound_mbsize=self.globalsolver_mbsize, ubound=self.globalsolver_mbsize - 1,
                     globalsolver=self.global_solver.name, localsolver=self.local_solver.name,
                     solved=int(self.solved), rounds=self.rounds, rounds_improved=self.rounds_improved,
-                    last_improved_in_round=self.rounds_last_improved, subgraph_max_verts=self.localgraph_max_num_verts,
+                    last_improved_in_round=self.rounds_last_improved,
+                    subgraph_max_vertices=self.localgraph_max_num_verts,
                     subgraph_max_edges=self.localgraph_max_numb_edges,
-                    inputgraph_max_verts=self.inputgraph_number_of_verts,
-                    inputgraph_max_edges=self.inputgraph_number_of_edges, lb=self.lb, lt=self.lt, gt=self.gt)
+                    input_num_vertices=self.inputgraph_number_of_verts,
+                    input_num_edges=self.inputgraph_number_of_edges, lb=self.lb, lt=self.lt, gt=self.gt)
 
     # noinspection SpellCheckingInspection
     def decompose(self, lt, lb, extractor=None, ni=10, gt=60, extractor_args=None):
@@ -61,6 +67,7 @@ class LocalImprovement(object):
         :type ni: integer
         :param gt: global timeout
         :type gt: integer
+        :param extractor_args:  additional arguments for the extractor
         :rtype: TreeDecomposition
         :returns a tree decomposition of the initialized file using the defined global solver and local solver
         """
@@ -73,8 +80,9 @@ class LocalImprovement(object):
             extractor = EdgeExtractor
         inputgraph = Graph.from_file(self.filename)
         self.inputgraph_number_of_verts = inputgraph.number_of_nodes()
-        self.inputgraph_number_of_verts = inputgraph.number_of_nodes()
-        new_decomp = TreeDecomposition(graph=inputgraph, td_name='org')
+        self.inputgraph_number_of_edges = inputgraph.number_of_edges()
+        new_decomp = TreeDecomposition(graph=inputgraph, td_name='org', temp_path=self.temp_path,
+                                       delete_temp=self.delete_temp)
 
         # MAIN: computation
         try:
@@ -98,6 +106,14 @@ class LocalImprovement(object):
                 logging.warn('RESULT max_bags=%s' % global_td.max_bag_size())
                 logging.warn('RESULT width=%s' % (global_td.max_bag_size() - 1))
                 return global_td
+            elif global_td.max_bag_size() < self.min_bagsize_for_localsolver_runs:
+                logging.warn('INITIAL VALUE WAS max_bags=%s' % self.globalsolver_mbsize)
+                logging.warn('RESULT max_bags=%s' % global_td.max_bag_size())
+                logging.warn('RESULT width=%s' % (global_td.max_bag_size() - 1))
+                logging.warn('We abort because minwidth (%s) for local solver is below given '
+                             'threshold (%s).' % (
+                             global_td.max_bag_size() - 1, self.min_bagsize_for_localsolver_runs - 1))
+                return global_td
 
             while lb_remaining > 0:
                 self.rounds += 1
@@ -105,7 +121,8 @@ class LocalImprovement(object):
                 logging.warn('old_maxbag(before everything) = %s' % global_td.max_bag_size())
                 rest_decomp, localgraph, connecting_nodes = extractor.extract_decomposition(global_td, inputgraph,
                                                                                             graph_max_bag_size,
-                                                                                            lb,extractor_args=extractor_args)
+                                                                                            lb,
+                                                                                            extractor_args=extractor_args)
                 logging.warn(
                     'cmax_bag_size = %s (%s); localgraph(#verts) = %s ; inputgraph(#verts) = %s; budget = %s ; '
                     'subsolver_runs = %s' % (

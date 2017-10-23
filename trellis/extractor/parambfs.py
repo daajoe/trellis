@@ -1,5 +1,5 @@
 # noinspection PyRedundantParentheses
-import copy,os
+import copy, os
 from itertools import permutations
 
 import random
@@ -14,7 +14,7 @@ from trellis.td import TreeDecomposition
 
 class ParamExtractor(Extractor):
     @staticmethod
-    def bfs(decomp, max_bag_size=None, budget=50, rand=False, c1=1.0,c2=0.5,beta=5,gamma=10,delta=2):
+    def bfs(decomp, max_bag_size=None, budget=50, rand=False, c1=1.0, c2=0.5, beta=5, gamma=10, delta=2):
         # get the bags from the tree decomposition
         """
 
@@ -23,7 +23,7 @@ class ParamExtractor(Extractor):
         :type decomp: decomposition
         """
         rest_decomp = copy.deepcopy(decomp)
-        bag_lengths = dict(zip(decomp.bags.keys(), map(len,decomp.bags.values())))
+        bag_lengths = dict(zip(decomp.bags.keys(), map(len, decomp.bags.values())))
         bags = decomp.bags
         # root of the BFS is the bag with max elements
         root_id = decomp.get_first_node(max_bag_size)
@@ -74,13 +74,13 @@ class ParamExtractor(Extractor):
                             internal_nodes.append(w)
                             sub_vertices |= decomp.bags[w]
                         continue
-                    sub_tree=ParamExtractor.subtree(decomp, w, v2)
+                    sub_tree = ParamExtractor.subtree(decomp, w, v2)
                     if len(sub_tree) <= gamma:
                         for w1 in sub_tree:
                             if w1 not in bfs_queue and w1 not in internal_nodes:
                                 bfs_queue.append(w1)
-                                bfs_depth[w1]=bfs_depth[w]+1
-                                parent[w1]=w
+                                bfs_depth[w1] = bfs_depth[w] + 1
+                                parent[w1] = w
                             if w1 not in internal_nodes:
                                 internal_nodes.append(w1)
                                 sub_vertices |= decomp.bags[w1]
@@ -98,9 +98,9 @@ class ParamExtractor(Extractor):
                         internal_nodes.remove(w)
                     if new_node not in internal_nodes:
                         internal_nodes.append(new_node)
-                if len(sub_vertices) >= budget+delta*max_bag_size:
+                if len(sub_vertices) >= budget + delta * max_bag_size:
                     break
-        print len(internal_nodes),len(sub_vertices)
+        print len(internal_nodes), len(sub_vertices)
         # rest_decomp.show(layout=1)
         return internal_nodes, sub_vertices, rest_decomp
 
@@ -150,18 +150,28 @@ class ParamExtractor(Extractor):
             for i, j in permutations(decomp.bags[leaf], r=2):
                 sub_graph.add_edge(i, j)
         rest_decomp = TreeDecomposition(tree=decomp.tree.subgraph(set(decomp.tree.nodes()) - set(internal_nodes)))
+        #TODO:
+        #,
+        # temp_path=self.temp_path,
+        # delete_temp=self.delete_temp, plot_if_td_invalid=self.plot_if_td_invalid
         for i in internal_nodes:
             del decomp.bags[i]
         rest_decomp.bags = decomp.bags
         return sub_graph, rest_decomp, connecting_nodes
 
     @staticmethod
-    def extract_decomposition(decomp, g, max_bag_size=None, budget=50,extractor_args={'extractor_c1':1.0,'extractor_c2':0.5,'extractor_beta':3,'extractor_gamma':5,'extractor_random':False,'extractor_delta':2}):
+    def extract_decomposition(decomp, g, max_bag_size=None, budget=50,
+                              extractor_args={'extractor_c1': 1.0, 'extractor_c2': 0.5, 'extractor_beta': 3,
+                                              'extractor_gamma': 5, 'extractor_random': False, 'extractor_delta': 2}):
         internal_nodes, _, rest_decomp = ParamExtractor.bfs(decomp, max_bag_size=max_bag_size, budget=budget,
-                                            c1=extractor_args['extractor_c1'],c2=extractor_args['extractor_c2'],beta=extractor_args['extractor_beta'],
-                                            gamma=extractor_args['extractor_gamma'],rand=extractor_args['extractor_random'],delta=extractor_args['extractor_delta'])
+                                                            c1=extractor_args['extractor_c1'],
+                                                            c2=extractor_args['extractor_c2'],
+                                                            beta=extractor_args['extractor_beta'],
+                                                            gamma=extractor_args['extractor_gamma'],
+                                                            rand=extractor_args['extractor_random'],
+                                                            delta=extractor_args['extractor_delta'])
         sub_graph, rest_decomp, connecting_leaves = ParamExtractor.extract_graph(internal_nodes,
-                                                                                copy.deepcopy(rest_decomp), g)
+                                                                                 copy.deepcopy(rest_decomp), g)
         # exit(0)
         return rest_decomp, sub_graph, connecting_leaves
 
@@ -181,7 +191,6 @@ class ParamExtractor(Extractor):
         if always_validate:
             td.validate2()
         return td
-
 
 #
 # def show_graph(graph, layout, nolabel=0, write=0, file_name=None, dnd=0, labels=None):
