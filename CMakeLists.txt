@@ -62,7 +62,10 @@ set(ExternalProjectCMakeArgs
 
 ExternalProject_Add(htd2016
   GIT_REPOSITORY https://github.com/mabseher/htd.git
-  GIT_TAG 4587fba
+  #PACE 2016 VERSION
+  #GIT_TAG 4587fba
+  #PREPACE 2017 VERSION including bugfixes and additional options
+  GIT_TAG 075019f
   SOURCE_DIR ${PROJECT_SOURCE_DIR}/decomposer/pace2016/htd
   BUILD_IN_SOURCE 1
   PREFIX build/htd2016
